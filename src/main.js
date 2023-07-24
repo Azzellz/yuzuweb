@@ -20,5 +20,8 @@ new Vue({
         Vue.prototype.$bus = this;
         Vue.prototype.$axios = axios;
         Vue.prototype.$nanoid = nanoid;
-    }
+        Vue.prototype.$avatarURL = (avatar) => {
+            return `http://127.0.0.1:4000/user_avatar/${avatar}`;
+        };
+    },
 }).$mount("#app");

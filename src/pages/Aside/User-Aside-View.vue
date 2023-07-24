@@ -9,12 +9,16 @@
             default-active="/user/info"
         >
             <el-menu-item index="/user/info">
-                <i class="el-icon-location"></i>
-                <span>个人</span>
+                <i class="el-icon-tickets"></i>
+                <span>资料</span>
             </el-menu-item>
             <el-menu-item index="/user/friends">
-                <i class="el-icon-location"></i>
+                <i class="el-icon-s-custom"></i>
                 <span>好友</span>
+            </el-menu-item>
+            <el-menu-item index="/user/posts">
+                <i class="el-icon-chat-dot-square"></i>
+                <span>帖子</span>
             </el-menu-item>
         </el-menu>
     </div>

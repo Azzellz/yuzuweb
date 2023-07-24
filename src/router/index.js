@@ -12,6 +12,7 @@ import UserAside from "../pages/Aside/User-Aside-View.vue";
 import PostAside from "../pages/Aside/Post-Aside-View.vue";
 import UserFriends from "../pages/User/User-Friends.vue"
 import UserInfo from "../pages/User/User-Info.vue"
+import UserPosts from "../pages/User/User-Posts.vue"
 
 Vue.use(VueRouter);
 export default new VueRouter({
@@ -82,6 +83,10 @@ export default new VueRouter({
                     path: "info",
                     component: UserInfo,
                 },
+                {
+                    path: "posts",
+                    component: UserPosts,
+                }
             ],
         },
         {

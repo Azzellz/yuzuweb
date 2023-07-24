@@ -1,4 +1,3 @@
-import axios from 'axios';
 <template>
     <div class="center">
         <div class="title">发布</div>
@@ -93,6 +92,7 @@ export default {
                     avatar: this.avatar,
                     title: this.postTitle,
                     content: this.postContent,
+                    isShowContent: this.isShowContent,
                     comments:[],//评论,初始为空数组
                     support: 0, //点赞数
                     oppose: 0, //点踩数
