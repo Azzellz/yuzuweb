@@ -1,28 +1,136 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+    <transition appear name="fadeIn">
+        <div id="app">
+            <!-- 头部 -->
+            <Header v-show="isHideHeader"></Header>
+            <!-- 主体 -->
+
+            <div class="main-container">
+                <!-- 边栏,选择性展示 -->
+                <transition appear name="fadeIn">
+                    <router-view name="aside"></router-view>
+                </transition>
+                <!-- 路由展示区:用flex1可以铺满剩余空间 -->
+                <transition appear name="fadeIn">
+                    <router-view style="flex: 1"></router-view>
+                </transition>
+            </div>
+        </div>
+    </transition>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Header from "./components/Header/Header-View.vue";
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+    name: "App",
+    methods: {
+        async loginCheck() {
+            //做Token校验
+            if (localStorage.getItem("token")) {
+                //登录校验
+                try {
+                    const { data } = await this.$axios.post(
+                        "http://localhost:4000/login",
+                        {},
+                        {
+                            headers: {
+                                Authorization: localStorage.getItem("token"),
+                            },
+                        }
+                    );
+                    console.log(data);
+                } catch (err) {
+                    //登录失败
+                    console.log(err);
+                    alert("登录已过期,请重新登录");
+                    //移除旧的token
+                    localStorage.clear();
+                    //将界面路由至登录页面
+                    this.$router.replace("/login");
+                }
+                // this.$axios
+                //     .post(
+                //         "http://localhost:4000/login",
+                //         {},
+                //         {
+                //             headers: {
+                //                 Authorization: localStorage.getItem("token"),
+                //             },
+                //         }
+                //     )
+                //     .then(({ data }) => {
+                //         console.log(data);
+                //     })
+                //     .catch((err) => {
+                //         //登录失败
+                //         console.log(err);
+                //         alert("登录已过期,请重新登录");
+                //         //移除旧的token
+                //         localStorage.clear();
+                //         //将界面路由至登录页面
+                //         this.$router.replace("/login");
+                //     });
+            } else if (
+                this.$route.path !== "/login" &&
+                this.$route.path !== "/register"
+            ) {
+                this.$router.replace("/login");
+            }
+        },
+    },
+    computed: {
+        isHideHeader() {
+            return !this.$route.meta.hideHeader;
+        },
+    },
+    mounted() {
+        //做登录检查
+        this.loginCheck();
+        //在APP实例中编程式操作路由时,不能重复进入路由,否则会崩溃
+    },
+    components: {
+        Header,
+        // Aside,
+    },
+};
 </script>
 
-<style>
+<style scoped>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+.fadeIn-enter-active {
+    animation: fadeIn 1s;
+}
+
+.main-container {
+    display: flex;
+    flex: 1;
+}
+</style>
+<!-- 全局css样式 -->
+<style>
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.title {
+    margin: 2rem auto;
+    font-weight: bold;
+    text-align: center;
+    font-size: 30px;
+    line-height: 30px;
 }
 </style>
