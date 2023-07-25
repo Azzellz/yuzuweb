@@ -1,9 +1,9 @@
 <template>
     <div class="container">
         <el-menu
-            background-color="#434343"
-            active-text-color="#fff"
-            text-color="black"
+            background-color="#545c64"
+            text-color="#fff"
+            active-text-color="#ffd04b"
             style="border: none"
             router
             default-active="/post/list"
@@ -27,7 +27,7 @@ export default {};
 <style scoped>
 .container {
     width: 100px;
-    background-color: #434343;
+    background-color: #545c64;
     font-weight: bold;
 }
 </style>

@@ -17,6 +17,7 @@ export default {
     },
     mounted() {
         //获取用户的post信息
+
         //TODO:这里要做个检验,如果本地存储获取不到user_id,就跳转到登录页面
         this.$axios
             .get(

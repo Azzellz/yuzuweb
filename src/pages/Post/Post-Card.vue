@@ -9,10 +9,7 @@
     >
         <el-card class="post-card">
             <div class="user-info">
-                <el-avatar
-                    :size="50"
-                    :src="$avatarURL(post.avatar)"
-                ></el-avatar>
+                <el-avatar :size="50" :src="$avatarURL(post.avatar)"></el-avatar>
                 <div style="flex: 1">{{ post.user_name }}</div>
             </div>
             <el-divider v-if="post.tags.length"></el-divider>
@@ -46,8 +43,7 @@ export default {
             return (post) =>
                 `👍:${post.support} 👎:${post.oppose} 评论数:${post.comments.length}`;
         },
-    },
-    filters: {
+    },    filters: {
         //使用过滤器对过长内容进行过滤
         //截取字符串
         subStr: (str) => {

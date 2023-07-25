@@ -8,9 +8,9 @@
                 action="http://127.0.0.1:4000/register"
                 ref="upload"
                 :data="{
-                    user_name: user_name,
-                    account: account,
-                    password: password,
+                    user_name,
+                    account,
+                    password,
                 }"
                 name="avatar"
                 :show-file-list="false"

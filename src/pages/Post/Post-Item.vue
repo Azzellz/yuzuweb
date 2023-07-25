@@ -2,7 +2,7 @@
     <div class="post-box">
         <h1 class="post-title">{{ post.title }}</h1>
         <h6 class="info-box">
-            <el-avatar :size="40" :src="avatarUrl(post.avatar)"></el-avatar>
+            <el-avatar :size="40" :src="$avatarURL(post.avatar)"></el-avatar>
             <div class="info-text">{{ postInfo }}</div>
             <div class="info-tags">
                 <el-tag
@@ -38,6 +38,8 @@
                 >
                 <el-button type="success" @click="supportPost">👍</el-button>
                 <el-button type="danger" @click="opposePost">👎</el-button>
+                <el-button v-if="!isFavorite" type="warning" icon="el-icon-star-off" @click="favoritePost"></el-button>
+                <el-button v-else type="warning" icon="el-icon-star-on" @click="unfavoritePost"></el-button>
             </div>
             <el-divider></el-divider>
             <div class="comment-display-box">
@@ -51,7 +53,7 @@
                         <div class="comment-user-info">
                             <el-avatar
                                 :size="50"
-                                :src="avatarUrl(comment.avatar)"
+                                :src="$avatarURL(comment.avatar)"
                             ></el-avatar>
                             <div>{{ comment.user_name }}</div>
                         </div>
@@ -74,6 +76,7 @@ export default {
     data() {
         return {
             comment: "",
+            isFavorite:false,
         };
     },
     computed: {
@@ -86,11 +89,7 @@ export default {
         postInfo() {
             return `${this.post.user_name} 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
         },
-        avatarUrl() {
-            return (avatar) => {
-                return `http://127.0.0.1:4000/user_avatar/${avatar}`;
-            };
-        },
+
     },
     methods: {
         ...mapActions("PostModule", ["updatePosts"]),
@@ -148,9 +147,43 @@ export default {
                 console.log(err);
                 this.$message.error("点踩失败");
             })
-        }
+        },
+        favoritePost(){
+            //收藏帖子
+            this.$axios.post("http://localhost:4000/favorite/post",{
+                post_id:this.post._id,
+                user_id:localStorage.getItem("user_id"),
+            }).then(({ data:{data} })=>{
+                console.log(data);
+                this.$message.success("收藏成功");
+                this.isFavorite = !this.isFavorite;
+                //更新列表
+                this.updatePosts();
+            }).catch(err=>{
+                console.log(err);
+                this.$message.error("收藏失败");
+            })
+        },
+        unfavoritePost(){
+            //收藏帖子
+            this.$axios.post("http://localhost:4000/unfavorite/post",{
+                post_id:this.post._id,
+                user_id:localStorage.getItem("user_id"),
+            }).then(({ data:{data} })=>{
+                console.log(data);
+                this.$message.error("取消收藏成功");
+                this.isFavorite = !this.isFavorite;
+                //更新列表
+                this.updatePosts();
+            }).catch(err=>{
+                console.log(err);
+                this.$message.error("取消收藏失败");
+            })
+        },
+        
     },
     props: ["id"],
+
 };
 </script>
 

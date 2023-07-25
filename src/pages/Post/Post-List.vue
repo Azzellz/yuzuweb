@@ -65,6 +65,13 @@ export default {
             }
         },
     },
+    beforeRouteEnter(to,from,next){
+        console.log(to,from)
+        // if (from.fullPath==='/user/posts'&&to.fullPath==='/post/item') {
+        //     console.log(123)
+        // }
+        next()
+    },
     mounted() {
         //进入界面时获取post列表
         this.updatePosts();
