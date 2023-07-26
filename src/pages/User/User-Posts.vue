@@ -1,5 +1,6 @@
 <template>
     <div class="container">
+        <div class="title" v-if="!posts.length">暂无发布的帖子</div>
         <PostCard v-for="post in posts" :key="post._id" :post="post"></PostCard>
     </div>
 </template>

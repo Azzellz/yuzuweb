@@ -32,19 +32,28 @@
                 <el-button
                     type="primary"
                     icon="el-icon-check"
-                    style="margin-right: 30px;"
+                    style="margin-right: 30px"
                     @click="publishComment"
-                    ></el-button
-                >
+                ></el-button>
                 <el-button type="success" @click="supportPost">👍</el-button>
                 <el-button type="danger" @click="opposePost">👎</el-button>
-                <el-button v-if="!isFavorite" type="warning" icon="el-icon-star-off" @click="favoritePost"></el-button>
-                <el-button v-else type="warning" icon="el-icon-star-on" @click="unfavoritePost"></el-button>
+                <el-button
+                    v-if="!isFavorite"
+                    type="warning"
+                    icon="el-icon-star-off"
+                    @click="favoritePost"
+                ></el-button>
+                <el-button
+                    v-else
+                    type="warning"
+                    icon="el-icon-star-on"
+                    @click="unfavoritePost"
+                ></el-button>
             </div>
             <el-divider></el-divider>
             <div class="comment-display-box">
                 <el-card
-                    v-for="(comment,index) in post.comments"
+                    v-for="(comment, index) in post.comments"
                     :key="comment.comment_id"
                     shadow="hover"
                     style="margin: 20px"
@@ -60,8 +69,7 @@
                         <div class="comment-content">{{ comment.content }}</div>
                         <div class="comment-meta">
                             <div>{{ comment.format_time }}</div>
-                            <div>{{ index+1 }} 楼</div>
-                            
+                            <div>{{ index + 1 }} 楼</div>
                         </div>
                     </div>
                 </el-card>
@@ -71,28 +79,35 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 export default {
     data() {
         return {
             comment: "",
-            isFavorite:false,
         };
     },
     computed: {
+        ...mapState("PostModule", ["posts"]), //通过getter获取posts
+        ...mapGetters("UserModule", ["userInfo"]), //通过getter获取favorites
         post() {
             //TODO: 可以用query直接传post进来
-            return this.$store.getters["PostModule/getPosts"].find(
-                (post) => post._id === this.id
-            );
+            return this.posts.find((post) => post._id === this.id);
         },
         postInfo() {
             return `${this.post.user_name} 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
         },
-
+        isFavorite() {
+            //如果favorites中含有当前post,则返回true,否则返回false
+            return (
+                this.userInfo.favorites.filter(
+                    (post) => post._id === this.post._id
+                ).length !== 0
+            );
+        },
     },
     methods: {
         ...mapActions("PostModule", ["updatePosts"]),
+        ...mapActions("UserModule", ["updateUserInfo"]),
         publishComment() {
             //应该发布后刷新一次界面让Vuex能获取到最新的值
             if (!this.comment) return this.$message.error("评论不能为空");
@@ -120,70 +135,79 @@ export default {
                     this.$message.error("评论失败");
                 });
         },
-        supportPost(){
+        supportPost() {
             //给帖子点赞
-            this.$axios.post("http://localhost:4000/support/post",{
-                post_id:this.post._id,
-            }).then(({ data:{data} })=>{
-                console.log(data);
-                this.$message.success("点赞成功");
-                //更新列表
-                this.updatePosts();
-            }).catch(err=>{
-                console.log(err);
-                this.$message.error("点赞失败");
-            })
+            this.$axios
+                .post("http://localhost:4000/support/post", {
+                    post_id: this.post._id,
+                })
+                .then(({ data: { data } }) => {
+                    console.log(data);
+                    this.$message.success("点赞成功");
+                    //更新列表
+                    this.updatePosts();
+                })
+                .catch((err) => {
+                    console.log(err);
+                    this.$message.error("点赞失败");
+                });
         },
-        opposePost(){
+        opposePost() {
             //给帖子点踩
-            this.$axios.post("http://localhost:4000/oppose/post",{
-                post_id:this.post._id,
-            }).then(({ data:{data} })=>{
-                console.log(data);
-                this.$message.error("点踩成功");
-                //更新列表
-                this.updatePosts();
-            }).catch(err=>{
-                console.log(err);
-                this.$message.error("点踩失败");
-            })
+            this.$axios
+                .post("http://localhost:4000/oppose/post", {
+                    post_id: this.post._id,
+                })
+                .then(({ data: { data } }) => {
+                    console.log(data);
+                    this.$message.error("点踩成功");
+                    //更新列表
+                    this.updatePosts();
+                })
+                .catch((err) => {
+                    console.log(err);
+                    this.$message.error("点踩失败");
+                });
         },
-        favoritePost(){
+        favoritePost() {
             //收藏帖子
-            this.$axios.post("http://localhost:4000/favorite/post",{
-                post_id:this.post._id,
-                user_id:localStorage.getItem("user_id"),
-            }).then(({ data:{data} })=>{
-                console.log(data);
-                this.$message.success("收藏成功");
-                this.isFavorite = !this.isFavorite;
-                //更新列表
-                this.updatePosts();
-            }).catch(err=>{
-                console.log(err);
-                this.$message.error("收藏失败");
-            })
+            this.$axios
+                .post("http://localhost:4000/favorite/post", {
+                    post_id: this.post._id,
+                    user_id: localStorage.getItem("user_id"),
+                })
+                .then(({ data: { data } }) => {
+                    console.log(data);
+                    this.$message.success("收藏成功");
+                    //更新用户信息以便获取最新的收藏列表
+                    this.updateUserInfo();
+                })
+                .catch((err) => {
+                    console.log(err);
+                    this.$message.error("收藏失败");
+                });
         },
-        unfavoritePost(){
+        unfavoritePost() {
             //收藏帖子
-            this.$axios.post("http://localhost:4000/unfavorite/post",{
-                post_id:this.post._id,
-                user_id:localStorage.getItem("user_id"),
-            }).then(({ data:{data} })=>{
-                console.log(data);
-                this.$message.error("取消收藏成功");
-                this.isFavorite = !this.isFavorite;
-                //更新列表
-                this.updatePosts();
-            }).catch(err=>{
-                console.log(err);
-                this.$message.error("取消收藏失败");
-            })
+            this.$axios
+                .post("http://localhost:4000/unfavorite/post", {
+                    post_id: this.post._id,
+                    user_id: localStorage.getItem("user_id"),
+                })
+                .then(({ data: { data } }) => {
+                    console.log(data);
+                    this.$message.error("取消收藏成功");
+                    //更新用户信息以便获取最新的收藏列表
+                    this.updateUserInfo();
+                })
+                .catch((err) => {
+                    console.log(err);
+                    this.$message.error("取消收藏失败");
+                });
         },
-        
     },
     props: ["id"],
-
+    mounted() {},
 };
 </script>
 
