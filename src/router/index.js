@@ -63,6 +63,7 @@ export default new VueRouter({
                     props($route) {
                         return {
                             id: $route.query.id,
+                            post: $route.query.post,
                         };
                     },
                 },

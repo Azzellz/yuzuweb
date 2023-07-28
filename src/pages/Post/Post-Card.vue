@@ -9,8 +9,12 @@
     >
         <el-card class="post-card">
             <div class="user-info">
-                <el-avatar :size="50" :src="$avatarURL(post.avatar)"></el-avatar>
+                <el-avatar
+                    :size="50"
+                    :src="$avatarURL(post.avatar)"
+                ></el-avatar>
                 <div style="flex: 1">{{ post.user_name }}</div>
+                <div>{{ postInfo }}</div>
             </div>
             <el-divider v-if="post.tags.length"></el-divider>
             <el-tag
@@ -36,14 +40,15 @@
 <script>
 export default {
     name: "PostCard",
-    props: ["post"], //接收一个post参数
+    props: ["post"], //接收一个post对象参数
     computed: {
         postInfo() {
             // 打印出点赞数和点踩数
-            return (post) =>
-                `👍:${post.support} 👎:${post.oppose} 评论数:${post.comments.length}`;
+            return `👍:${this.post.support} 👎:${this.post.oppose} 评论数:${this.post.comments.length}`;
+            
         },
-    },    filters: {
+    },
+    filters: {
         //使用过滤器对过长内容进行过滤
         //截取字符串
         subStr: (str) => {

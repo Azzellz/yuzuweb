@@ -35,7 +35,7 @@ export default {
         login() {
             //先校验token是否合法
             this.$axios
-                .post("http://127.0.0.1:4000/login", {
+                .post("/login", {
                     account: this.account,
                     password: this.password,
                 })

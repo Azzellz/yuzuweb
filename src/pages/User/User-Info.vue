@@ -4,7 +4,7 @@
         <el-divider content-position="right">自己</el-divider>
         <el-card class="user-info">
             <div class="user-item">
-                <el-avatar :size="100" :src="avatarUrl"></el-avatar>
+                <el-avatar :size="100" :src="$avatarURL(avatar)"></el-avatar>
             </div>
             <div class="user-item">
                 <div>用户名:</div>
@@ -30,11 +30,9 @@ export default {
         userName() {
             return localStorage.getItem("user_name");
         },
-        avatarUrl() {
-            return `http://127.0.0.1:4000/user_avatar/${localStorage.getItem(
-                "avatar"
-            )}`;
-        },
+        avatar(){
+            return localStorage.getItem("avatar");
+        }
     },
     methods: {
         quitLogin() {
@@ -47,14 +45,16 @@ export default {
                     this.$message({
                         type: "success",
                         message: "退出登录!",
+                        offset:80
                     });
-                    localStorage.clear();
+                    localStorage.clear();//清空本地存储
                     this.$router.replace("/login");
                 })
                 .catch(() => {
                     this.$message({
                         type: "info",
                         message: "已取消退出登录",
+                        offset:80
                     });
                 });
         },

@@ -1,6 +1,6 @@
 <template>
     <!-- 路由中转站 -->
-    <router-view></router-view>
+    <router-view class="fit-fixed-position"></router-view>
 </template>
 
 <script>
@@ -13,18 +13,9 @@ export default {
 </script>
 
 <style scoped>
-.user-info {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-}
-.user-item {
-    margin: 10px;
-    display: flex;
-    justify-content: center;
-    font-size: 30px;
-    font-weight: bold;
+/* 适应fixed定位 */
+.fit-fixed-position {
+    margin-top: 60px;
+    margin-left: 100px;
 }
 </style>

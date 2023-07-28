@@ -35,7 +35,11 @@ export default {};
 <style scoped>
 .container {
     width: 100px;
+    height: 100%;
+    margin-top: 60px;
     background-color: #545c64;
     font-weight: bold;
+    overflow-y: auto;
+    position: fixed;
 }
 </style>

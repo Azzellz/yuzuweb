@@ -3,13 +3,13 @@
         <div class="title">发布</div>
         <el-divider></el-divider>
         <el-input
-            v-model="postTitle"
+            v-model="post.title"
             placeholder="请输入标题"
             style="width: 20%"
         ></el-input>
         <div class="tag-box">
             <el-tag
-                v-for="tag in tags"
+                v-for="tag in post.tags"
                 :key="tag"
                 closable
                 :disable-transitions="false"
@@ -37,13 +37,13 @@
         <el-input
             type="textarea"
             :autosize="{ minRows: 25 }"
-            v-model="postContent"
+            v-model="post.content"
             placeholder="请输入内容"
             style="width: 75%"
         ></el-input>
         <div class="publish-box">
             <el-button type="primary" @click="publish">发布</el-button>
-            <el-checkbox v-model="isShowContent" style="margin: 10px 20px"
+            <el-checkbox v-model="meta.isShowContent" style="margin: 10px 20px"
                 >发布后展示内容</el-checkbox
             >
         </div>
@@ -51,32 +51,33 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
 export default {
     data() {
         return {
-            postTitle: "",
-            postContent: "",
-            tags: [],
+            post: {
+                user_id: localStorage.getItem("user_id"),
+                user_name: localStorage.getItem("user_name"),
+                avatar: localStorage.getItem("avatar"),
+                title: "",
+                content: "",
+                comments: [],
+                support: 0,
+                oppose: 0,
+                tags: [],
+            },
+            meta: {
+                isShowContent: false, //发布后在列表是否展示文章内容
+            },
             tagValue: "",
-            isShowContent: false, //发布后在列表是否展示文章内容
             showInput: false,
         };
     },
-    computed: {
-        user_name() {
-            return localStorage.getItem("user_name");
-        },
-        user_id() {
-            return localStorage.getItem("user_id");
-        },
-        avatar() {
-            return localStorage.getItem("avatar");
-        },
-    },
     methods: {
+        ...mapActions("PostModule", ["getPosts"]),
         publish() {
             //检测内容是否为空
-            if (!this.postTitle || !this.postContent) {
+            if (!this.post.title || !this.post.content) {
                 this.$message({
                     showClose: true,
                     message: "标题或内容不能为空",
@@ -86,29 +87,28 @@ export default {
             }
             //发送post请求
             this.$axios
-                .post("http://127.0.0.1:4000/post", {
-                    user_id: this.user_id,
-                    user_name: this.user_name,
-                    avatar: this.avatar,
-                    title: this.postTitle,
-                    content: this.postContent,
-                    isShowContent: this.isShowContent,
-                    comments:[],//评论,初始为空数组
-                    support: 0, //点赞数
-                    oppose: 0, //点踩数
-                    tags: this.tags, //标签
+                .post("/post", {
+                    ...this.post,
+                    ...this.meta,
                 })
                 .then(({ data }) => {
                     console.log(data);
+                    this.getPosts(); //更新文章列表
                     this.$message({
                         showClose: true,
                         message: data.msg,
                         type: "success",
+                        offset: 80,
                     });
                 })
                 .catch((err) => {
                     console.log(err);
-                    this.$message.error("发布失败");
+                    this.$message({
+                        showClose: true,
+                        message: "发布失败",
+                        type: "danger",
+                        offset: 80,
+                    });
                 });
         },
         showInputBtn() {
@@ -118,19 +118,18 @@ export default {
             });
         },
         handleClose(tag) {
-            this.tags.splice(this.tags.indexOf(tag), 1);
+            this.post.tags.splice(this.post.tags.indexOf(tag), 1);
         },
         handleInputConfirm() {
             //添加标签
             let tagValue = this.tagValue;
             if (tagValue) {
-                this.tags.push(tagValue);
+                this.post.tags.push(tagValue);
             }
             this.showInput = false;
             this.tagValue = "";
         },
     },
-    mounted() {},
 };
 </script>
 

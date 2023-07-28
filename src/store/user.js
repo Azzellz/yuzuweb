@@ -1,29 +1,27 @@
 import axios from "axios";
-axios.defaults.baseURL = "http://localhost:4000";
 
 //判断是否已经登录,如果已经登录,那本地存储就有user_id这个字段,这里就可以直接发请求获取用户信息
 const user_id = localStorage.getItem("user_id");
-// if (user_id) {
-//     axios
-//         .get(`/user?id=${user_id}`)
-//         .then(({ data: { data } }) => {
-//             //从Vuex获取数据
-//             UserModule.state.user = data;
-//             console.log("inited user-info:", data);
-//         })
-//         .catch((err) => {
-//             console.log(err);
-//         });
-// }
 
 //界面刷新Vuex会重新执行
 const UserModule = {
     namespaced: true, //启动Vuex模块化
     actions: {
-        updateUserInfo(context) {
+        getUser(context, val = {}) {
+            //检查是否有参数传入,没有就使用默认值
+            //这里是用来分页的
+            let currentPage = val.currentPage || 0; //currentPage=0的时候就是初始查询,不跳过
+            let pageSize = val.pageSize || 10; //默认是一页展示10个post
+            let keyword = val.keyword || ""; //默认搜索关键字为空
+            console.log(val)
+
             return new Promise((resolve, reject) => {
                 axios
-                    .get(`/user?id=${user_id}`)
+                    .get(
+                        `/user?id=${user_id}&limit=${pageSize}&skip=${
+                            currentPage * pageSize
+                        }&keyword=${keyword}`
+                    )
                     .then(({ data: { data } }) => {
                         //从上下文对象中触发commit函数提交mutation,更新state
                         context.commit("UPDATE", data);
@@ -39,17 +37,17 @@ const UserModule = {
         },
     },
     mutations: {
-        UPDATE(state, user) {
-            state.user = user;
+        UPDATE(state, data) {
+            state.user = data.user;
+            state.publishedTotal = data.publishedTotal;
+            state.favoritesTotal = data.favoritesTotal
         },
     },
-    getters: {
-        userInfo(state) {
-            return state.user;
-        },
-    },
+    getters: {},
     state: {
         user: {},
+        publishedTotal:0,
+        favoritesTotal:0,
     },
 };
 export default UserModule;

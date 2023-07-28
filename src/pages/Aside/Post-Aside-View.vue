@@ -10,7 +10,7 @@
         >
             <el-menu-item index="/post/list">
                 <i class="el-icon-location"></i>
-                <span slot="title">最近</span>
+                <span slot="title">全部</span>
             </el-menu-item>
             <el-menu-item index="/post/publish">
                 <i class="el-icon-edit"></i>
@@ -27,7 +27,11 @@ export default {};
 <style scoped>
 .container {
     width: 100px;
+    height: 100%;
+    margin-top: 60px;
     background-color: #545c64;
     font-weight: bold;
+    overflow-y: auto;
+    position: fixed;
 }
 </style>

@@ -14,6 +14,7 @@
                 <transition appear name="fadeIn">
                     <router-view v-if="isReady" style="flex: 1"></router-view>
                 </transition>
+                
             </div>
         </div>
     </transition>
@@ -34,8 +35,8 @@ export default {
         };
     },
     methods: {
-        ...mapActions("PostModule", ["updatePosts"]),
-        ...mapActions("UserModule", ["updateUserInfo"]),
+        ...mapActions("PostModule", ["getPosts"]),
+        ...mapActions("UserModule", ["getUser"]),
 
         async loginCheck() {
             //做Token校验
@@ -125,8 +126,12 @@ export default {
         //TODO: 解决了刷新后数据丢失的问题
         //TODO: 期间可以展示一个loading动画
         //等待数据刷新完后再渲染
-        await Promise.all([this.updatePosts(), this.updateUserInfo()]);
+
+        //这里更新数据没传参,默认是只拿到了10条post
+        await Promise.all([this.getPosts(), this.getUser()]);
         this.isReady = true; //解除渲染锁
+
+        // this.isReady = true; //解除渲染锁
     },
 };
 </script>
@@ -139,9 +144,7 @@ export default {
     flex-direction: column;
     overflow-x: hidden;
 }
-.fadeIn-enter-active {
-    animation: fadeIn 1s;
-}
+
 
 .main-container {
     display: flex;
@@ -167,5 +170,9 @@ export default {
     text-align: center;
     font-size: 30px;
     line-height: 30px;
+}
+
+.fadeIn-enter-active {
+    animation: fadeIn 1s;
 }
 </style>

@@ -1,29 +1,29 @@
 import axios from "axios";
-axios.defaults.baseURL = "http://localhost:4000";
-//todo 这里应该限制向后端获取的post数量,只获取指定数量的post
-// axios
-//     .get("/posts")
-//     .then(({ data: { data } }) => {
-//         //从Vuex获取数据
-//         PostModule.state.posts = data;
-//         console.log("inited post-list:", data);
-//     })
-//     .catch((err) => {
-//         console.log(err);
-//     });
 
 //界面刷新Vuex会重新执行
 const PostModule = {
     namespaced: true,
+    //注意! actions只能接收一个额外参数val,如果要传多个参数,需要把参数封装成对象
     actions: {
-        updatePosts(context) {
+        getPosts(context, val={}) {
+            
+            //检查是否有参数传入,没有就使用默认值
+            let currentPage = val.currentPage || 0; //currentPage=0的时候就是初始查询,不跳过
+            let pageSize = val.pageSize || 10; //默认是一页展示10个post
+            let keyword = val.keyword || ""; //默认搜索关键字为空
+            console.log("currentPage:", currentPage);
+            
             return new Promise((resolve, reject) => {
                 axios
-                    .get("/posts")
+                    .get(
+                        `/posts?limit=${pageSize}&skip=${
+                            currentPage * pageSize
+                        }&keyword=${keyword}`
+                    )
                     .then(({ data: { data } }) => {
                         //从上下文对象中触发commit函数提交mutation,更新state
                         context.commit("UPDATE", data);
-                        console.log("updated post-list:", data);
+                        console.log(data);
                         //解除渲染锁
                         resolve(data);
                     })
@@ -33,16 +33,23 @@ const PostModule = {
                     });
             });
         },
+        updatePost(context, newPost) {
+            console.log(newPost)
+            axios.put(`/post`, newPost).then(({ data }) => {
+                console.log(data)
+            })
+        }
     },
     mutations: {
-        UPDATE(state, posts) {
-            state.posts = posts;
+        UPDATE(state, data) {
+            state.posts = data.posts;
+            console.log("updated post-list:", data.posts);
+            state.total = data.total;
+            console.log("updated posts total:", data.total);
+            // console.log("current pageSize:", state.pageSize);
         },
     },
     getters: {
-        posts(state) {
-            return state.posts;
-        },
         getPostById(state) {
             return (id) => {
                 state.posts.find((post) => {
@@ -53,6 +60,8 @@ const PostModule = {
     },
     state: {
         posts: [],
+        total: 0, //记录总数
+        // pageSize: 5, //每页显示的记录数
     },
 };
 export default PostModule;
