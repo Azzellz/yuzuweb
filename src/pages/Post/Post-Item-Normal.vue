@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import { mapActions} from "vuex";
+import { mapActions } from "vuex";
 export default {
     data() {
         return {
@@ -96,12 +96,17 @@ export default {
         postInfo() {
             return `${this.post.user_name} 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
         },
+        getOption(){
+            return {
+                pageSize:this.pageSize,
+                currentPage:this.currentPage,
+            }
+        },
         isFavorite() {
             //如果favorites中含有当前post,则返回true,否则返回false
             return (
-                this.user.favorites.filter(
-                    (post) => post._id === this.post._id
-                ).length !== 0
+                this.user.favorites.filter((post) => post._id === this.post._id)
+                    .length !== 0
             );
         },
     },
@@ -124,8 +129,8 @@ export default {
                 .post("/comment", comment)
                 .then((res) => {
                     console.log(res);
-                    //成功后调用一下更新列表的方法
-                    this.getPosts();
+                    //成功后调用一下更新列表的方法,根据是否为作者来决定更新哪个列表
+                    this.isFromUser ? this.getUser() : this.getPosts();
                     //TODO: 这里也可以更新下用户信息,但是不知道会不会有性能问题
                     this.$message({
                         type: "success",
@@ -158,7 +163,7 @@ export default {
                         offset: 80,
                     });
                     //更新列表
-                    this.getPosts();
+                    this.isFromUser ? this.getUser() : this.getPosts();
                 })
                 .catch((err) => {
                     console.log(err);
@@ -179,7 +184,7 @@ export default {
                     console.log(data);
                     this.$message.error("点踩成功");
                     //更新列表
-                    this.getPosts();
+                    this.isFromUser ? this.getUser() : this.getPosts();
                 })
                 .catch((err) => {
                     console.log(err);
@@ -201,7 +206,7 @@ export default {
                         offset: 80,
                     });
                     //更新用户信息以便获取最新的收藏列表
-                    this.getUser();
+                    this.getUser(this.getOption);
                 })
                 .catch((err) => {
                     console.log(err);
@@ -223,7 +228,7 @@ export default {
                     console.log(data);
                     this.$message.error("取消收藏成功");
                     //更新用户信息以便获取最新的收藏列表
-                    this.getUser();
+                    this.getUser(this.getOption);
                 })
                 .catch((err) => {
                     console.log(err);
@@ -240,9 +245,17 @@ export default {
             });
         },
     },
-    props: ["post","user","isAuthor","isEditing"],//接收文章id和是否为文章作者的布尔值参数和是否处于编辑模式的布尔值参数
+    props: [
+        "post",
+        "user",
+        "isAuthor",
+        "isEditing",
+        "isFromUser",
+        "currentPage",
+        "pageSize",
+    ], //接收文章id和是否为文章作者的布尔值参数和是否处于编辑模式的布尔值参数
     created() {
-        
+        console.log(this.getOption)
     },
 };
 </script>

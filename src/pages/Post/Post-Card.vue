@@ -4,6 +4,8 @@
             path: '/post/item',
             query: {
                 id: post._id,
+                currentPage: currentPage,
+                pageSize: pageSize,
             },
         }"
     >
@@ -40,7 +42,7 @@
 <script>
 export default {
     name: "PostCard",
-    props: ["post"], //接收一个post对象参数
+    props: ["post","currentPage","pageSize"], //接收一个post对象参数
     computed: {
         postInfo() {
             // 打印出点赞数和点踩数

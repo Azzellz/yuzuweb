@@ -14,7 +14,6 @@
                 <transition appear name="fadeIn">
                     <router-view v-if="isReady" style="flex: 1"></router-view>
                 </transition>
-                
             </div>
         </div>
     </transition>
@@ -127,11 +126,20 @@ export default {
         //TODO: 期间可以展示一个loading动画
         //等待数据刷新完后再渲染
 
-        //这里更新数据没传参,默认是只拿到了10条post
-        await Promise.all([this.getPosts(), this.getUser()]);
-        this.isReady = true; //解除渲染锁
+        //如果用户在item界面刷新
+        let option = {
+            currentPage:this.$route.query.currentPage,
+            pageSize:this.$route.query.pageSize
+        }
+        try {
+            await Promise.all([this.getPosts(option), this.getUser(option)]);
+            this.isReady = true; //解除渲染锁
+        } catch (error) {
+            //TODO: 错误处理
+            console.log(error);
+            this.isReady = true; //解除渲染锁
+        }
 
-        // this.isReady = true; //解除渲染锁
     },
 };
 </script>
@@ -144,7 +152,6 @@ export default {
     flex-direction: column;
     overflow-x: hidden;
 }
-
 
 .main-container {
     display: flex;

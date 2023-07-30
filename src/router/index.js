@@ -63,7 +63,9 @@ export default new VueRouter({
                     props($route) {
                         return {
                             id: $route.query.id,
-                            post: $route.query.post,
+                            currentPage: $route.query.currentPage,
+                            pageSize: $route.query.pageSize,
+                            
                         };
                     },
                 },

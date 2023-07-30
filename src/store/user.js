@@ -48,6 +48,7 @@ const UserModule = {
         user: {},
         publishedTotal:0,
         favoritesTotal:0,
+        
     },
 };
 export default UserModule;

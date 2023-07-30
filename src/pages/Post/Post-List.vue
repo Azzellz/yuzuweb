@@ -13,6 +13,8 @@
                 v-for="post in posts"
                 :key="post._id"
                 :post="post"
+                :pageSize="pageSize"
+                :currentPage="currentPage"
             ></PostCard>
         </transition-group>
         <div class="page-box">
@@ -53,7 +55,7 @@ export default {
             console.log(`每页 ${newPageSize} 条`);
             this.pageSize = newPageSize;
             this.getPosts({
-                currentPage: this.currentPage - 1,
+                currentPage: this.currentPage,
                 pageSize: this.pageSize,
                 keyword: this.keyword,
             });
@@ -63,7 +65,7 @@ export default {
             console.log(`当前页: ${currentPage}`);
             console.log(this.keyword)
             this.getPosts({
-                currentPage: this.currentPage - 1,
+                currentPage: this.currentPage,
                 pageSize: this.pageSize,
                 keyword: this.keyword,
             });
@@ -72,7 +74,7 @@ export default {
         goSearch(){
             console.log("Go to search..",this.keyword)
             this.getPosts({
-                currentPage: this.currentPage - 1,
+                currentPage: this.currentPage,
                 pageSize: this.pageSize,
                 keyword: this.keyword,
             });
@@ -88,7 +90,7 @@ export default {
         keyword(newVal){
             //监听关键词变化
             this.getPosts({
-                currentPage: this.currentPage - 1,
+                currentPage: this.currentPage,
                 pageSize: this.pageSize,
                 keyword: newVal,
             });

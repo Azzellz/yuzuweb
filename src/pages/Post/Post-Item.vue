@@ -1,7 +1,22 @@
 <template>
     <span>
-        <PostItemNormal v-if="!isEditing" :post="post" :user="user" :isAuthor="isAuthor" :isEditing.sync="isEditing"></PostItemNormal>
-        <PostItemEdit v-else :post="post" :user="user" :isEditing.sync="isEditing"></PostItemEdit>
+        <PostItemNormal
+            v-if="!isEditing"
+            :post="postWithFlag.post"
+            :user="user"
+            :pageSize="pageSize"
+            :currentPage="currentPage"
+            :isAuthor="isAuthor"
+            :isFromUser="postWithFlag.isFromUser"
+            :isEditing.sync="isEditing"
+        ></PostItemNormal>
+        <PostItemEdit
+            v-else
+            :post="postWithFlag.post"
+            :user="user"
+            :isEditing.sync="isEditing"
+            :isFromUser="postWithFlag.isFromUser"
+        ></PostItemEdit>
     </span>
 </template>
 
@@ -18,28 +33,49 @@ export default {
         return {
             isAuthor: false, //判断是否为文章作者,如果是作者那么进入编辑页面
             isEditing: false, //判断是否在编辑状态
+            // isFromUser: false, //判断是否从用户页面进入
         };
     },
     computed: {
         ...mapState("PostModule", ["posts"]), //通过getter获取posts
         ...mapState("UserModule", ["user"]), //通过getter获取favorites
-        post() {
+        postWithFlag() {
             //从当前用户中找或是从所有文章中找
-            return this.posts.find((post) => post._id === this.id) || this.user.published.find((post) => post._id === this.id);
+            return this.posts.find((post) => post._id === this.id)
+                ? {
+                      post: this.posts.find((post) => post._id === this.id),
+                      isFromUser: false,
+                  }
+                : {
+                      post: this.user.published.find(
+                          (post) => post._id === this.id
+                      )
+                          ? this.user.published.find(
+                                (post) => post._id === this.id
+                            )
+                          : this.user.favorites.find(
+                                (post) => post._id === this.id
+                            ),
+                      isFromUser: true,
+                  };
         },
     },
-    props: ["id"],//获取post的id
+    props: ["id","currentPage","pageSize"], //获取post的id
     created() {
         //判断当前用户是否为文章作者
         //如果是则开启编辑模式
-        if (this.post.user_id === this.user._id) {
+        if (this.postWithFlag.post.user_id === this.user._id) {
             this.isAuthor = true;
             console.log("Hey!current custom is author!allow to edit mode");
+        }
+        if (this.postWithFlag.isFromUser) {
+            console.log("Hey!current custom is from user page!");
+        }else{
+            console.log("Hey!current custom is from post list page!");
         }
         
     },
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

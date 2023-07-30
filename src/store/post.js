@@ -5,14 +5,14 @@ const PostModule = {
     namespaced: true,
     //注意! actions只能接收一个额外参数val,如果要传多个参数,需要把参数封装成对象
     actions: {
-        getPosts(context, val={}) {
-            
+        getPosts(context, val = {}) {
             //检查是否有参数传入,没有就使用默认值
-            let currentPage = val.currentPage || 0; //currentPage=0的时候就是初始查询,不跳过
-            let pageSize = val.pageSize || 10; //默认是一页展示10个post
+            let currentPage = val.currentPage-1 || 0; //currentPage=0的时候就是初始查询,不跳过
+            let pageSize = +val.pageSize || 10; //默认是一页展示10个post
             let keyword = val.keyword || ""; //默认搜索关键字为空
-            console.log("currentPage:", currentPage);
-            
+            console.log("now storage's posts currentPage:", currentPage);
+            console.log("now storage's posts pageSize:", pageSize);
+
             return new Promise((resolve, reject) => {
                 axios
                     .get(
@@ -22,7 +22,11 @@ const PostModule = {
                     )
                     .then(({ data: { data } }) => {
                         //从上下文对象中触发commit函数提交mutation,更新state
-                        context.commit("UPDATE", data);
+                        context.commit("UPDATE", {
+                            ...data,
+                            currentPage,
+                            pageSize
+                        });
                         console.log(data);
                         //解除渲染锁
                         resolve(data);
@@ -34,11 +38,11 @@ const PostModule = {
             });
         },
         updatePost(context, newPost) {
-            console.log(newPost)
+            console.log(newPost);
             axios.put(`/post`, newPost).then(({ data }) => {
-                console.log(data)
-            })
-        }
+                console.log(data);
+            });
+        },
     },
     mutations: {
         UPDATE(state, data) {
@@ -46,8 +50,21 @@ const PostModule = {
             console.log("updated post-list:", data.posts);
             state.total = data.total;
             console.log("updated posts total:", data.total);
-            // console.log("current pageSize:", state.pageSize);
+            state.currentPage = data.currentPage;
+            //因为方便计算currentPage传进来的时候要-1
+            console.log("updated currentPage:", state.currentPage);
+            state.pageSize = data.pageSize;
+            console.log("updated pageSize:", state.pageSize);
         },
+        UPDATE_CURRENT_PAGE(state, currentPage) {
+            state.currentPage = currentPage;
+            console.log("updated currentPage:", state.currentPage);
+        },
+        UPDATE_PAGE_SIZE(state, pageSize) {
+            state.pageSize = pageSize;
+            console.log("updated pageSize:", state.pageSize);
+        },
+        
     },
     getters: {
         getPostById(state) {
@@ -61,7 +78,8 @@ const PostModule = {
     state: {
         posts: [],
         total: 0, //记录总数
-        // pageSize: 5, //每页显示的记录数
+        currentPage: 0, //默认从0开始算就是第一页
+        pageSize: 10, //每页显示的记录数
     },
 };
 export default PostModule;
