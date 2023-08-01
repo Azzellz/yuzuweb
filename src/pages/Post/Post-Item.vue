@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapActions, mapState } from "vuex";
 import PostItemNormal from "./Post-Item-Normal.vue";
 import PostItemEdit from "./Post-Item-Edit.vue";
 export default {
@@ -33,7 +33,6 @@ export default {
         return {
             isAuthor: false, //判断是否为文章作者,如果是作者那么进入编辑页面
             isEditing: false, //判断是否在编辑状态
-            // isFromUser: false, //判断是否从用户页面进入
         };
     },
     computed: {
@@ -60,20 +59,23 @@ export default {
                   };
         },
     },
-    props: ["id","currentPage","pageSize"], //获取post的id
+    methods: {
+        ...mapActions("UserModule", ["getUser"]), //通过action获取posts
+    },
+    props: ["id", "currentPage", "pageSize"], //获取post的id
     created() {
         //判断当前用户是否为文章作者
         //如果是则开启编辑模式
         if (this.postWithFlag.post.user_id === this.user._id) {
             this.isAuthor = true;
-            console.log("Hey!current custom is author!allow to edit mode");
+            // console.log("Hey!current custom is author!allow to edit mode");
         }
         if (this.postWithFlag.isFromUser) {
-            console.log("Hey!current custom is from user page!");
-        }else{
-            console.log("Hey!current custom is from post list page!");
+            // console.log("Hey!current custom is from user page!");
+        } else {
+            // console.log("Hey!current custom is from post list page!");
         }
-        
+
     },
 };
 </script>

@@ -47,7 +47,11 @@ export default {
                     localStorage.setItem("user_account", data.user_account);
                     localStorage.setItem("avatar", data.avatar);
                     this.$router.replace("/home");
-                    this.$message.success("登录成功");
+                    this.$message({
+                        type: "success",
+                        message: "登录成功",
+                        offset: 80,
+                    });
                 })
                 .catch((err) => {
                     //登录失败

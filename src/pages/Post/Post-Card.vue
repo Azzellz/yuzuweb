@@ -11,12 +11,18 @@
     >
         <el-card class="post-card">
             <div class="user-info">
-                <el-avatar
-                    :size="50"
-                    :src="$avatarURL(post.avatar)"
-                ></el-avatar>
-                <div style="flex: 1">{{ post.user_name }}</div>
-                <div>{{ postInfo }}</div>
+                <template v-if="!post.isUnknown">
+                    <el-avatar
+                        :size="50"
+                        :src="$avatarURL(post.avatar)"
+                    ></el-avatar>
+                    <div style="flex: 1">{{ post.user_name }}</div>
+                </template>
+                <template v-else>
+                    <el-avatar icon="el-icon-user-solid" :size="50"></el-avatar>
+                    <div style="flex: 1">匿名用户</div>
+                </template>
+                <div style="font-size: 15px; color: #999">{{ postInfo }}</div>
             </div>
             <el-divider v-if="post.tags.length"></el-divider>
             <el-tag
@@ -42,12 +48,11 @@
 <script>
 export default {
     name: "PostCard",
-    props: ["post","currentPage","pageSize"], //接收一个post对象参数
+    props: ["post", "currentPage", "pageSize"], //接收一个post对象参数
     computed: {
         postInfo() {
             // 打印出点赞数和点踩数
             return `👍:${this.post.support} 👎:${this.post.oppose} 评论数:${this.post.comments.length}`;
-            
         },
     },
     filters: {
@@ -86,6 +91,11 @@ a {
     font-size: 20px;
     font-weight: bold;
     align-items: center;
+    padding: 0 20px;
+}
+.post-info {
+    font-size: 15px;
+    color: #999;
     padding: 0 20px;
 }
 .title {

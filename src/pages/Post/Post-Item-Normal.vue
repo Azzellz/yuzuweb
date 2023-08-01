@@ -2,8 +2,18 @@
     <div class="post-box">
         <h1 class="post-title">{{ post.title }}</h1>
         <h6 class="info-box">
-            <el-avatar :size="40" :src="$avatarURL(post.avatar)"></el-avatar>
-            <div class="info-text">{{ postInfo }}</div>
+            <template v-if="!post.isUnknown">
+                <el-avatar
+                    :size="40"
+                    :src="$avatarURL(post.avatar)"
+                ></el-avatar>
+                <div class="info-text">{{ postInfo }}</div>
+            </template>
+            <template v-else>
+                <el-avatar icon="el-icon-user-solid" :size="40"></el-avatar>
+                <div class="info-text">{{unknownPostInfo}}</div>
+            </template>
+
             <div class="info-tags">
                 <el-tag
                     v-for="(tag, index) in post.tags"
@@ -16,9 +26,9 @@
             </div>
         </h6>
         <el-divider>内容</el-divider>
-        <el-card class="content-box">{{ post.content }}</el-card>
+        <el-card class="content-box" shadow="hover">{{ post.content }}</el-card>
         <el-divider>评论</el-divider>
-        <el-card class="comment-container">
+        <el-card class="comment-container" v-if="post.isCommentable">
             <div class="comment-edit-box">
                 <el-input
                     type="textarea"
@@ -81,37 +91,54 @@
                 </el-card>
             </div>
         </el-card>
+        <div v-else class="close-tip">
+            <h1>作者已关闭评论区</h1>
+            <el-button
+                type="primary"
+                v-if="isAuthor"
+                @click="openComment"
+                style="margin: 20px"
+                >重新开启</el-button
+            >
+        </div>
     </div>
 </template>
 
 <script>
 import { mapActions } from "vuex";
 export default {
+    props: [
+        "post",
+        "user",
+        "isAuthor",
+        "isEditing",
+        "isFromUser",
+        "currentPage",
+        "pageSize",
+    ], //接收文章id和是否为文章作者的布尔值参数和是否处于编辑模式的布尔值参数
     data() {
         return {
             comment: "",
+            isFavorite: false,
         };
     },
     computed: {
         postInfo() {
             return `${this.post.user_name} 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
         },
-        getOption(){
-            return {
-                pageSize:this.pageSize,
-                currentPage:this.currentPage,
-            }
+        unknownPostInfo(){
+            return `匿名用户 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
         },
-        isFavorite() {
-            //如果favorites中含有当前post,则返回true,否则返回false
-            return (
-                this.user.favorites.filter((post) => post._id === this.post._id)
-                    .length !== 0
-            );
+        getOption() {
+            return {
+                pageSize: this.pageSize,
+                currentPage: this.currentPage,
+                keyword: "",
+            };
         },
     },
     methods: {
-        ...mapActions("PostModule", ["getPosts"]),
+        ...mapActions("PostModule", ["getPosts", "updatePost"]),
         ...mapActions("UserModule", ["getUser"]),
         publishComment() {
             //应该发布后刷新一次界面让Vuex能获取到最新的值
@@ -125,18 +152,23 @@ export default {
                 avatar: localStorage.getItem("avatar"),
                 content: this.comment,
             };
+            //给服务器发送评论请求
+            //TODO: 这里可以做个评论区校验,防止用户恶意评论
             this.$axios
                 .post("/comment", comment)
                 .then((res) => {
                     console.log(res);
                     //成功后调用一下更新列表的方法,根据是否为作者来决定更新哪个列表
-                    this.isFromUser ? this.getUser() : this.getPosts();
+                    this.isFromUser
+                        ? this.getUser(this.getOption)
+                        : this.getPosts(this.getOption);
                     //TODO: 这里也可以更新下用户信息,但是不知道会不会有性能问题
                     this.$message({
                         type: "success",
                         message: "评论成功",
                         offset: 80,
                     });
+                    //重置评论
                     this.comment = "";
                 })
                 .catch((err) => {
@@ -163,7 +195,9 @@ export default {
                         offset: 80,
                     });
                     //更新列表
-                    this.isFromUser ? this.getUser() : this.getPosts();
+                    this.isFromUser
+                        ? this.getUser(this.getOption)
+                        : this.getPosts(this.getOption);
                 })
                 .catch((err) => {
                     console.log(err);
@@ -182,13 +216,23 @@ export default {
                 })
                 .then(({ data: { data } }) => {
                     console.log(data);
-                    this.$message.error("点踩成功");
+                    this.$message({
+                        type: "success",
+                        message: "点踩成功",
+                        offset: 80,
+                    });
                     //更新列表
-                    this.isFromUser ? this.getUser() : this.getPosts();
+                    this.isFromUser
+                        ? this.getUser(this.getOption)
+                        : this.getPosts(this.getOption);
                 })
                 .catch((err) => {
                     console.log(err);
-                    this.$message.error("点踩失败");
+                    this.$message({
+                        type: "error",
+                        message: "点踩失败",
+                        offset: 80,
+                    });
                 });
         },
         favoritePost() {
@@ -199,14 +243,13 @@ export default {
                     user_id: localStorage.getItem("user_id"),
                 })
                 .then(({ data: { data } }) => {
-                    console.log(data);
+                    console.log("收藏成功", data);
                     this.$message({
                         type: "success",
                         message: "收藏成功",
                         offset: 80,
                     });
-                    //更新用户信息以便获取最新的收藏列表
-                    this.getUser(this.getOption);
+                    this.isFavorite = true;
                 })
                 .catch((err) => {
                     console.log(err);
@@ -218,44 +261,67 @@ export default {
                 });
         },
         unfavoritePost() {
-            //收藏帖子
+            //取消收藏帖子
             this.$axios
                 .post("/unfavorite/post", {
                     post_id: this.post._id,
                     user_id: localStorage.getItem("user_id"),
                 })
                 .then(({ data: { data } }) => {
-                    console.log(data);
-                    this.$message.error("取消收藏成功");
+                    console.log("取消收藏", data);
+                    this.$message({
+                        type: "success",
+                        message: "取消收藏成功",
+                        offset: 80,
+                    });
                     //更新用户信息以便获取最新的收藏列表
-                    this.getUser(this.getOption);
+                    this.isFavorite = false;
                 })
                 .catch((err) => {
                     console.log(err);
-                    this.$message.error("取消收藏失败");
+                    this.$message({
+                        type: "error",
+                        message: "取消收藏失败",
+                        offset: 80,
+                    });
                 });
         },
+        //进入编辑模式,切换组件
         goingToEditMode() {
             //触发父组件的事件更新isEditing的值为true
             this.$emit("update:isEditing", true);
             this.$message({
                 type: "warning",
-                message: "编辑模式开启,点击编辑按钮退出编辑模式",
+                message: "编辑模式开启,点击保存后修改生效",
+                offset: 80,
+            });
+        },
+        //开启评论区
+        async openComment() {
+            let newPost = this.post;
+            newPost.isCommentable = true;
+            //更新帖子
+            await this.updatePost(newPost);
+            this.$message({
+                type: "success",
+                message: "评论区开启成功",
                 offset: 80,
             });
         },
     },
-    props: [
-        "post",
-        "user",
-        "isAuthor",
-        "isEditing",
-        "isFromUser",
-        "currentPage",
-        "pageSize",
-    ], //接收文章id和是否为文章作者的布尔值参数和是否处于编辑模式的布尔值参数
     created() {
-        console.log(this.getOption)
+        //获取文章的收藏状态
+        this.$axios
+            .post("/user/isfavorite", {
+                user_id: localStorage.getItem("user_id"),
+                post_id: this.post._id,
+            })
+            .then(({ data: { data } }) => {
+                this.isFavorite = data;
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     },
 };
 </script>
@@ -272,7 +338,11 @@ export default {
     min-height: 600px;
     overflow: hidden;
 }
-
+.close-tip {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
 .comment-container {
     width: 80%;
     margin-bottom: 20px;

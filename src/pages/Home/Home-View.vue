@@ -9,16 +9,9 @@
 <script>
 export default {
     data() {
-        return {
-            titleVisuable: true,
-        };
+        return {};
     },
-    methods: {
-        // 点击隐藏
-        toggleTitle() {
-            this.titleVisuable = !this.titleVisuable;
-        },
-    },
+    methods: {},
 };
 </script>
 
@@ -31,5 +24,4 @@ export default {
     font-family: "Pacifico", cursive;
     animation: animate 3s linear infinite;
 }
-
 </style>

@@ -12,7 +12,7 @@
                 </transition>
                 <!-- 路由展示区:用flex1可以铺满剩余空间 -->
                 <transition appear name="fadeIn">
-                    <router-view v-if="isReady" style="flex: 1"></router-view>
+                    <router-view style="flex: 1"></router-view>
                 </transition>
             </div>
         </div>
@@ -21,7 +21,6 @@
 
 <script>
 import Header from "./components/Header/Header-View.vue";
-import { mapActions } from "vuex";
 export default {
     name: "App",
     components: {
@@ -30,13 +29,10 @@ export default {
     },
     data() {
         return {
-            isReady: false, //渲染锁
+            isReady: false, //全局渲染锁
         };
     },
     methods: {
-        ...mapActions("PostModule", ["getPosts"]),
-        ...mapActions("UserModule", ["getUser"]),
-
         async loginCheck() {
             //做Token校验
             if (localStorage.getItem("token")) {
@@ -91,7 +87,7 @@ export default {
             }
         },
         storageCheck() {
-            //做本地存储检查
+            //做本地存储检查,如果有缺漏,则跳转至登录页面
             if (
                 !localStorage.getItem(
                     "user_id" &&
@@ -101,10 +97,10 @@ export default {
                 ) &&
                 !localStorage.getItem("avatar")
             ) {
-                this.$message.error("本地信息有误,请重新登录");
                 localStorage.clear();
                 if (this.$route.path !== "/login") {
                     this.$router.replace("/login");
+                    this.$message.error("本地信息有误,请重新登录");
                 }
             }
         },
@@ -114,7 +110,7 @@ export default {
             return !this.$route.meta.hideHeader;
         },
     },
-    async mounted() {
+    created() {
         //做登录检查
         this.loginCheck();
         //在APP实例中编程式操作路由时,不能重复进入路由,否则会崩溃
@@ -125,25 +121,10 @@ export default {
         //TODO: 解决了刷新后数据丢失的问题
         //TODO: 期间可以展示一个loading动画
         //等待数据刷新完后再渲染
-
-        //如果用户在item界面刷新
-        let option = {
-            currentPage:this.$route.query.currentPage,
-            pageSize:this.$route.query.pageSize
-        }
-        try {
-            await Promise.all([this.getPosts(option), this.getUser(option)]);
-            this.isReady = true; //解除渲染锁
-        } catch (error) {
-            //TODO: 错误处理
-            console.log(error);
-            this.isReady = true; //解除渲染锁
-        }
-
     },
 };
 </script>
-
+<!-- 局部css样式 -->
 <style scoped>
 #app {
     width: 100vw;

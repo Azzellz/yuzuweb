@@ -95,8 +95,12 @@ export default {
             localStorage.setItem("user_name", data.user_name);
             localStorage.setItem("user_account", data.account);
             //跳转至home
-            this.$router.replace("/home");//这里提示要放路由跳转后面,不然有延迟很难看
-            this.$message.success("注册成功");
+            this.$router.replace("/home"); //这里提示要放路由跳转后面,不然有延迟很难看
+            this.$message({
+                type: "success",
+                message: "注册成功",
+                offset: 80,
+            });
         },
         handleAvatarError() {
             this.$message.error("用户名或账号已存在");

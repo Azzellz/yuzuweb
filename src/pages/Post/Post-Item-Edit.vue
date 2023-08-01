@@ -29,16 +29,64 @@
             style="width: 75%"
             :autosize="{ minRows: 25 }"
         ></el-input>
-        <el-button type="danger" @click="saveEdited" style="margin:20px">保存</el-button>
+        <el-popover
+            placement="top"
+            width="200"
+            title="保存"
+            trigger="hover"
+            content="保存当前修改的所有内容"
+        >
+            <el-button
+                type="danger"
+                @click="saveEdited"
+                style="margin: 20px"
+                slot="reference"
+                >保存</el-button
+            >
+        </el-popover>
+
         <el-divider>评论区设置</el-divider>
-        <el-card class="comment-container">
+        <el-card
+            class="comment-container"
+            v-if="this.currentPost.isCommentable"
+        >
             <div class="comment-setting">
-                <el-button type="danger" @click="deleteAllComments">删除所有评论</el-button>
+                <el-popover
+                    placement="top"
+                    width="200"
+                    title="删除"
+                    trigger="hover"
+                    content="这将删除所有评论"
+                >
+                    <el-button
+                        type="danger"
+                        @click="deleteAllComments"
+                        icon="el-icon-delete"
+                        slot="reference"
+                        >删除所有评论</el-button
+                    >
+                </el-popover>
+
+                <el-popover
+                    placement="top"
+                    width="200"
+                    title="关闭"
+                    trigger="hover"
+                    content="这将关闭评论区"
+                >
+                    <el-button
+                        type="danger"
+                        @click="closeComment"
+                        icon="el-icon-close"
+                        slot="reference"
+                        >关闭评论区</el-button
+                    >
+                </el-popover>
             </div>
             <el-divider></el-divider>
             <div class="comment-display-box">
                 <el-card
-                    v-for="(comment, index) in post.comments"
+                    v-for="(comment, index) in currentPost.comments"
                     :key="comment.comment_id"
                     shadow="hover"
                     style="margin: 20px"
@@ -56,6 +104,22 @@
                             <div>{{ comment.format_time }}</div>
                             <div>{{ index + 1 }} 楼</div>
                         </div>
+                        <div class="comment-operation">
+                            <el-button
+                                type="primary"
+                                icon="el-icon-upload2"
+                                @click="topComment(comment, index)"
+                                style="margin: 5px"
+                                >顶置</el-button
+                            >
+                            <el-button
+                                type="danger"
+                                icon="el-icon-delete"
+                                @click="deleteOneComment(index)"
+                                style="margin: 5px"
+                                >删除</el-button
+                            >
+                        </div>
                     </div>
                 </el-card>
             </div>
@@ -69,7 +133,7 @@ export default {
     data() {
         return {
             //初始化空值
-            currentPost:{}
+            currentPost: {},
         };
     },
     computed: {
@@ -78,7 +142,7 @@ export default {
         },
     },
     methods: {
-        ...mapActions("PostModule", ["getPosts","updatePost"]),
+        ...mapActions("PostModule", ["getPosts", "updatePost"]),
         ...mapActions("UserModule", ["getUser"]),
         saveEdited() {
             //保存并且结束编辑模式
@@ -90,21 +154,43 @@ export default {
                 offset: 80,
             });
         },
-        deleteAllComments(){
+        deleteAllComments() {
             //删除所有评论
             this.currentPost.comments = [];
+            this.$message({
+                type: "success",
+                message: "全部删除成功",
+                offset: 80,
+            });
+        },
+        //删除某个评论
+        deleteOneComment(index) {
             this.$message({
                 type: "success",
                 message: "删除成功",
                 offset: 80,
             });
-        }
+            this.currentPost.comments.splice(index, 1);
+        },
+        //顶置评论
+        topComment(comment, currentIndex) {
+            this.currentPost.comments.splice(currentIndex, 1);
+            this.currentPost.comments.unshift(comment);
+            this.$message({
+                type: "success",
+                message: "顶置成功",
+                offset: 80,
+            });
+        },
+        closeComment() {
+            this.currentPost.isCommentable = false;
+        },
     },
-    props: ["id","post","user", "isEditing"],
+    props: ["id", "post", "user", "isEditing"],
     created() {
         console.log("now is editing mode");
         //初始化可编辑post数据
-        this.currentPost = this.post
+        this.currentPost = this.post;
     },
 };
 </script>
@@ -169,6 +255,13 @@ export default {
     justify-content: center;
     align-items: center;
     font-weight: bold;
+}
+.comment-operation {
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+    padding: 20px;
+    border-left: 1px solid #d5d5d5;
 }
 .info-box {
     color: grey;

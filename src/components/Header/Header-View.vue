@@ -11,8 +11,7 @@
         :default-active="activeIndex"
         class="container"
         mode="horizontal"
-        :router="true"
-        @select="handleSelect"
+        router
         background-color="#fff"
         text-color="#000"
         active-text-color="#ffd04b"
@@ -30,11 +29,18 @@ export default {
             activeIndex: "/home",
         };
     },
-    methods: {
-        handleSelect(key, keyPath) {
-            console.log(key, keyPath);
-        },
-    },
+    created(){
+        let front = this.$route.path.split("/")[1];
+        switch (front) {
+            case "post":
+                this.activeIndex = "/post/list";
+                break;
+            case "user":
+                this.activeIndex = "/user/info";
+                break;
+        }
+    }
+
 };
 </script>
 

@@ -1,10 +1,29 @@
 <template>
-    <router-view class="fit-fixed-position"></router-view>
+    <router-view class="fit-fixed-position" v-if="isReady"></router-view>
 </template>
 
 <script>
+import { mapActions } from "vuex";
 export default {
-    mounted() {},
+    data() {
+        return {
+            isReady: false, //渲染锁
+        };
+    },
+    methods: {
+        ...mapActions("PostModule", ["getPosts"]),
+        ...mapActions("UserModule", ["getUser"]),
+    },
+    async created() {
+        //卡个渲染锁
+        let option = {
+            currentPage: this.$route.query.currentPage,
+            pageSize: this.$route.query.pageSize,
+        };
+        console.log(option)
+        await Promise.all([this.getPosts(option), this.getUser(option)]);
+        this.isReady = true; //解除渲染锁
+    },
 };
 </script>
 

@@ -16,7 +16,7 @@ import UserPosts from "../pages/User/User-Posts.vue";
 import UserFavorites from "../pages/User/User-Favorites.vue";
 
 Vue.use(VueRouter);
-export default new VueRouter({
+const router = new VueRouter({
     routes: [
         {
             path: "/login",
@@ -105,3 +105,8 @@ export default new VueRouter({
         },
     ],
 });
+//todo: 应该把登录校验放到这里做
+// router.beforeEach((to, from, next) => {
+    
+// })
+export default router;

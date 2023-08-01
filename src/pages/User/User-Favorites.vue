@@ -12,6 +12,8 @@
             v-for="post in posts"
             :key="post._id"
             :post="post"
+            :pageSize="pageSize"
+            :currentPage="currentPage"
         ></PostCard>
         <div class="page-box">
             <el-pagination
@@ -51,7 +53,7 @@ export default {
             console.log(`每页 ${newPageSize} 条`);
             this.pageSize = newPageSize;
             this.getUser({
-                currentPage: this.currentPage - 1,
+                currentPage: this.currentPage,
                 pageSize: this.pageSize,
                 keyword: this.keyword,
             });
@@ -61,7 +63,7 @@ export default {
             console.log(`当前页: ${currentPage}`);
             console.log(this.keyword);
             this.getUser({
-                currentPage: this.currentPage - 1,
+                currentPage: this.currentPage,
                 pageSize: this.pageSize,
                 keyword: this.keyword,
             });
@@ -70,7 +72,7 @@ export default {
         goSearch() {
             console.log("Go to search..", this.keyword);
             this.getUser({
-                currentPage: this.currentPage - 1,
+                currentPage: this.currentPage,
                 pageSize: this.pageSize,
                 keyword: this.keyword,
             });
@@ -79,8 +81,7 @@ export default {
     computed: {
         ...mapState("UserModule", ["user", "publishedTotal", "favoritesTotal"]),
         posts() {
-            if (this.user) return this.user.favorites;
-            else return [];
+            return this.user.favorites;
         },
     },
     watch: {
@@ -88,11 +89,19 @@ export default {
         keyword(newVal) {
             //监听关键词变化
             this.getUser({
-                currentPage: this.currentPage - 1,
+                currentPage: this.currentPage,
                 pageSize: this.pageSize,
                 keyword: newVal,
             });
         },
+    },
+    //路由进入前先获取用户数据
+    beforeRouteEnter(to, from, next) {
+        //这里传回调是为了获取组件实例
+        next((vm) => {
+            //TODO: 卡个渲染锁
+            vm.getUser();
+        });
     },
 };
 </script>

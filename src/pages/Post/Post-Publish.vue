@@ -46,6 +46,12 @@
             <el-checkbox v-model="meta.isShowContent" style="margin: 10px 20px"
                 >发布后展示内容</el-checkbox
             >
+            <el-checkbox v-model="meta.isCommentable" style="margin: 10px 10px"
+                >开启评论区</el-checkbox
+            >
+            <el-checkbox v-model="meta.isUnknown" style="margin: 10px 10px"
+                >匿名发布</el-checkbox
+            >
         </div>
     </div>
 </template>
@@ -68,6 +74,8 @@ export default {
             },
             meta: {
                 isShowContent: false, //发布后在列表是否展示文章内容
+                isCommentable: true, //是否允许评论
+                isUnknown: false, //是否匿名发布
             },
             tagValue: "",
             showInput: false,

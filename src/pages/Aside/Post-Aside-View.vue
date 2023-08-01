@@ -6,7 +6,7 @@
             active-text-color="#ffd04b"
             style="border: none"
             router
-            default-active="/post/list"
+            :default-active="activeIndex"
         >
             <el-menu-item index="/post/list">
                 <i class="el-icon-location"></i>
@@ -21,7 +21,13 @@
 </template>
 
 <script>
-export default {};
+export default {
+    data() {
+        return {
+            activeIndex: this.$route.path,
+        };
+    },
+};
 </script>
 
 <style scoped>
