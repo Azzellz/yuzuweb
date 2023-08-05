@@ -34,6 +34,26 @@ const PostModule = {
                     });
             });
         },
+        getLastPosts(context) {
+            //获取最新的十篇文章
+            return new Promise((resolve, reject) => {
+                axios.get(`/posts/last`).then(({ data: { data } }) => {
+                    //从上下文对象中触发commit函数提交mutation,更新state
+                    context.commit("UPDATE", {
+                        ...data,
+                        currentPage: 0,
+                        pageSize: 10,
+                    });
+                    //解除渲染锁
+                    resolve(data);
+                }).catch((err) => {
+                    console.log(err);
+                    reject(err);
+                });
+            })
+            
+        },
+        //直接将整个post对象传入,替换数据库内具有相同id的post
         updatePost(context, newPost) {
             console.log("going to update:", newPost);
             return axios.put(`/post`, newPost);
