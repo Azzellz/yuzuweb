@@ -11,7 +11,7 @@
             </template>
             <template v-else>
                 <el-avatar icon="el-icon-user-solid" :size="40"></el-avatar>
-                <div class="info-text">{{unknownPostInfo}}</div>
+                <div class="info-text">{{ unknownPostInfo }}</div>
             </template>
 
             <div class="info-tags">
@@ -26,7 +26,7 @@
             </div>
         </h6>
         <el-divider>内容</el-divider>
-        <el-card class="content-box" shadow="hover">{{ post.content }}</el-card>
+        <el-card class="content-box">{{ post.content }}</el-card>
         <el-divider>评论</el-divider>
         <el-card class="comment-container" v-if="post.isCommentable">
             <div class="comment-edit-box">
@@ -112,24 +112,27 @@ export default {
         "user",
         "isAuthor",
         "isEditing",
-        "isFromUser",
+        "from",
         "currentPage",
         "pageSize",
     ], //接收文章id和是否为文章作者的布尔值参数和是否处于编辑模式的布尔值参数
     data() {
         return {
-            currentPost:this.post,//引用当前文章
+            // currentPost: this.post, //引用当前文章
             comment: "",
             isFavorite: false,
         };
     },
     computed: {
+        //文章信息
         postInfo() {
             return `${this.post.user_name} 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
         },
-        unknownPostInfo(){
+        //匿名用户的文章信息
+        unknownPostInfo() {
             return `匿名用户 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
         },
+        //获取文章的选项
         getOption() {
             return {
                 pageSize: this.pageSize,
@@ -139,8 +142,36 @@ export default {
         },
     },
     methods: {
-        ...mapActions("PostModule", ["getPosts", "updatePost"]),
+        ...mapActions("PostModule", [
+            "getPosts",
+            "updatePost",
+            "getLastestPosts",
+        ]),
         ...mapActions("UserModule", ["getUser"]),
+        //比较来源后更新不同数据源
+        async confirmUpdate() {
+            //枚举判断来源
+            switch (this.from) {
+                case this.$enum.POST_FROM.USER_POSTS:
+                    await this.getUser(this.getOption);
+                    break;
+                case this.$enum.POST_FROM.LIST_POSTS:
+                    await this.getPosts(this.getOption);
+                    break;
+                case this.$enum.POST_FROM.LASTEST_POSTS:
+                    await this.getLastestPosts(this.getOption);
+                    break;
+                default:
+                    //全部更新一遍
+                    await Promise.all([
+                        this.getUser(this.getOption),
+                        this.getPosts(this.getOption),
+                        this.getLastestPosts(this.getOption),
+                    ]);
+                    break;
+            }
+        },
+        //发表评论
         publishComment() {
             //应该发布后刷新一次界面让Vuex能获取到最新的值
             if (!this.comment) return this.$message.error("评论不能为空");
@@ -159,10 +190,8 @@ export default {
                 .post("/comment", comment)
                 .then((res) => {
                     console.log(res);
-                    //成功后调用一下更新列表的方法,根据是否为作者来决定更新哪个列表
-                    this.isFromUser
-                        ? this.getUser(this.getOption)
-                        : this.getPosts(this.getOption);
+                    //根据不同数据源更新不同的数据
+                    this.confirmUpdate();
                     //TODO: 这里也可以更新下用户信息,但是不知道会不会有性能问题
                     this.$message({
                         type: "success",
@@ -182,6 +211,7 @@ export default {
                     });
                 });
         },
+        //给帖子点赞
         supportPost() {
             //给帖子点赞
             this.$axios
@@ -195,10 +225,8 @@ export default {
                         message: "点赞成功",
                         offset: 80,
                     });
-                    //更新列表
-                    this.isFromUser
-                        ? this.getUser(this.getOption)
-                        : this.getPosts(this.getOption);
+                    //根据不同数据源更新不同的数据
+                    this.confirmUpdate();
                 })
                 .catch((err) => {
                     console.log(err);
@@ -209,6 +237,7 @@ export default {
                     });
                 });
         },
+        //给帖子点踩
         opposePost() {
             //给帖子点踩
             this.$axios
@@ -222,10 +251,8 @@ export default {
                         message: "点踩成功",
                         offset: 80,
                     });
-                    //更新列表
-                    this.isFromUser
-                        ? this.getUser(this.getOption)
-                        : this.getPosts(this.getOption);
+                    //根据不同数据源更新不同的数据
+                    this.confirmUpdate();
                 })
                 .catch((err) => {
                     console.log(err);
@@ -236,6 +263,7 @@ export default {
                     });
                 });
         },
+        //收藏帖子
         favoritePost() {
             //收藏帖子
             this.$axios
@@ -261,6 +289,7 @@ export default {
                     });
                 });
         },
+        //取消收藏帖子
         unfavoritePost() {
             //取消收藏帖子
             this.$axios

@@ -13,5 +13,25 @@ export default {
         Vue.prototype.$avatarURL = (avatar) => {
             return `http://127.0.0.1:4000/user_avatar/${avatar}`;
         };
+        //全局枚举变量
+        Vue.prototype.$enum = {
+            //post数据来源
+            POST_FROM: {
+                USER_POSTS: Symbol("用户自己的POST"),
+                LASTEST_POSTS: Symbol("来自主页的最新的POST"),
+                LIST_POSTS: Symbol("来自于列表的POST"),
+                FOLLOWING_POSTS: Symbol("来自于用户关注的人的post"),
+            },
+        };
+        //全局防抖函数构造函数
+        Vue.prototype.$debounce = (func, delay) => {
+            let timer;
+            return function (...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    func.apply(this, args);
+                }, delay);
+            };
+        };
     },
 };

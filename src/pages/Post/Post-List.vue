@@ -85,7 +85,6 @@ export default {
         ...mapState("PostModule", ["posts", "total"]),
     },
     watch: {
-
         //实时搜索
         keyword(newVal){
             //监听关键词变化
@@ -96,7 +95,6 @@ export default {
             });
         }
     },
-    mounted() {},
 };
 </script>
 

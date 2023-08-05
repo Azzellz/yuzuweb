@@ -130,13 +130,15 @@
 <script>
 import { mapActions } from "vuex";
 export default {
+    props: ["id", "post", "user", "isEditing"],
     data() {
         return {
-            //初始化空值
-            currentPost: {},
+            //引用文章数据
+            currentPost: this.post,
         };
     },
     computed: {
+        //文章数据
         postInfo() {
             return `${this.post.user_name} 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
         },
@@ -144,6 +146,7 @@ export default {
     methods: {
         ...mapActions("PostModule", ["getPosts", "updatePost"]),
         ...mapActions("UserModule", ["getUser"]),
+        //保存修改
         saveEdited() {
             //保存并且结束编辑模式
             this.$emit("update:isEditing", false);
@@ -154,8 +157,9 @@ export default {
                 offset: 80,
             });
         },
+        //删除所有评论
         deleteAllComments() {
-            //删除所有评论
+            //清空当前文章的评论
             this.currentPost.comments = [];
             this.$message({
                 type: "success",
@@ -185,12 +189,6 @@ export default {
         closeComment() {
             this.currentPost.isCommentable = false;
         },
-    },
-    props: ["id", "post", "user", "isEditing"],
-    created() {
-        console.log("now is editing mode");
-        //初始化可编辑post数据
-        this.currentPost = this.post;
     },
 };
 </script>

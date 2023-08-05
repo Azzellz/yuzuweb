@@ -7,7 +7,7 @@
             :pageSize="pageSize"
             :currentPage="currentPage"
             :isAuthor="isAuthor"
-            :isFromUser="postWithFlag.isFromUser"
+            :from="postWithFlag.from"
             :isEditing.sync="isEditing"
         ></PostItemNormal>
         <PostItemEdit
@@ -15,7 +15,6 @@
             :post="postWithFlag.post"
             :user="user"
             :isEditing.sync="isEditing"
-            :isFromUser="postWithFlag.isFromUser"
         ></PostItemEdit>
     </span>
 </template>
@@ -38,40 +37,42 @@ export default {
     computed: {
         ...mapState("PostModule", ["posts", "lastestPosts"]), //通过getter获取posts
         ...mapState("UserModule", ["user"]), //通过getter获取favorites
+        //从当前用户中找或是从所有文章中找
         postWithFlag() {
-            //从当前用户中找或是从所有文章中找
-            let postFromPosts = this.posts.find((post) => post._id === this.id);
+            const postFromPosts = this.posts.find(
+                (post) => post._id === this.id
+            );
             if (postFromPosts) {
                 return {
                     post: postFromPosts,
-                    isFromUser: false,
+                    from: this.$enum.POST_FROM.LIST_POSTS,
                 };
             }
-            let postFromUserPublished = this.user.published.find(
+            const postFromUserPublished = this.user.published.find(
                 (post) => post._id === this.id
             );
             if (postFromUserPublished) {
                 return {
                     post: postFromUserPublished,
-                    isFromUser: true,
+                    from: this.$enum.POST_FROM.USER_POSTS,
                 };
             }
-            let postFromUserFavorites = this.user.favorites.find(
+            const postFromUserFavorites = this.user.favorites.find(
                 (post) => post._id === this.id
             );
             if (postFromUserFavorites) {
                 return {
                     post: postFromUserFavorites,
-                    isFromUser: true,
+                    from: this.$enum.POST_FROM.USER_POSTS,
                 };
             }
-            let postFromLastestPosts = this.lastestPosts.find(
+            const postFromLastestPosts = this.lastestPosts.find(
                 (post) => post._id === this.id
             );
             if (postFromLastestPosts) {
                 return {
                     post: postFromLastestPosts,
-                    isFromUser: false,
+                    from: this.$enum.POST_FROM.LASTEST_POSTS,
                 };
             }
             return undefined;

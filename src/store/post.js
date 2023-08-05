@@ -20,7 +20,7 @@ const PostModule = {
                     )
                     .then(({ data: { data } }) => {
                         //从上下文对象中触发commit函数提交mutation,更新state
-                        context.commit("UPDATE", {
+                        context.commit("UPDATE_LIST_POSTS", {
                             ...data,
                             currentPage,
                             pageSize,
@@ -37,32 +37,33 @@ const PostModule = {
         getLastestPosts(context) {
             //!获取最新的十篇文章,后续可拓展获取指定数量的文章
             return new Promise((resolve, reject) => {
-                axios.get(`/posts/lastest`).then(({ data: { data } }) => {
-                    //更新LastestPosts
-                    context.commit("UPDATE_LASTEST_POSTS", data);
-                    //解除渲染锁
-                    resolve(data);
-                }).catch((err) => {
-                    console.log(err);
-                    reject(err);
-                });
-            })
-            
+                axios
+                    .get(`/posts/lastest`)
+                    .then(({ data: { data } }) => {
+                        //更新LastestPosts
+                        context.commit("UPDATE_LASTEST_POSTS", data);
+                        //解除渲染锁
+                        resolve(data);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        reject(err);
+                    });
+            });
         },
         //直接将整个post对象传入,替换数据库内具有相同id的post
         updatePost(context, newPost) {
             console.log("going to update:", newPost);
             return axios.put(`/post`, newPost);
-            
         },
     },
     mutations: {
-        UPDATE(state, data) {
+        UPDATE_LIST_POSTS(state, data) {
             state.posts = data.posts;
-            console.log("updated post-list:", data.posts);
             state.total = data.total;
             state.currentPage = data.currentPage;
             state.pageSize = data.pageSize;
+            console.log("updated post-list:", data.posts);
         },
         UPDATE_LASTEST_POSTS(state, data) {
             state.lastestPosts = data;
