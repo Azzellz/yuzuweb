@@ -1,7 +1,7 @@
 <template>
     <div class="container" v-if="isReady">
         <div class="recent-posts">
-            <h1 style="text-align: center; margin: 20px">最新</h1>
+            <h1 style="text-align: center">最新</h1>
             <PostCard v-for="post in lastestPosts" :key="post._id" :post="post" />
         </div>
         <div class="recent-users">

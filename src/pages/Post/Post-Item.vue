@@ -83,16 +83,9 @@ export default {
     props: ["id", "currentPage", "pageSize"], //获取post的id
     created() {
         //判断当前用户是否为文章作者
-        console.log(this.postWithFlag);
         //如果是则开启编辑模式
         if (this.postWithFlag.post.user_id === this.user._id) {
             this.isAuthor = true;
-            // console.log("Hey!current custom is author!allow to edit mode");
-        }
-        if (this.postWithFlag.isFromUser) {
-            // console.log("Hey!current custom is from user page!");
-        } else {
-            // console.log("Hey!current custom is from post list page!");
         }
     },
 };
