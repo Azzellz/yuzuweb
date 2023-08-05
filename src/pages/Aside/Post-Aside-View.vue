@@ -27,6 +27,13 @@ export default {
             activeIndex: this.$route.path,
         };
     },
+    created() {
+        // this.$router.beforeEach((to, from, next) => {
+        //     this.activeIndex = to.path;
+        //     next();
+        // });
+        console.log(this.$route.path);
+    },
 };
 </script>
 

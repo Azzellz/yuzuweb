@@ -39,8 +39,10 @@ export default {
                 //登录校验
                 try {
                     const { data } = await this.$axios.post(
-                        "http://localhost:4000/login",
-                        {},
+                        "/login",
+                        {
+                            user_id: localStorage.getItem("user_id"),
+                        },
                         {
                             headers: {
                                 Authorization: localStorage.getItem("token"),
@@ -57,28 +59,6 @@ export default {
                     //将界面路由至登录页面
                     this.$router.replace("/login");
                 }
-                // this.$axios
-                //     .post(
-                //         "http://localhost:4000/login",
-                //         {},
-                //         {
-                //             headers: {
-                //                 Authorization: localStorage.getItem("token"),
-                //             },
-                //         }
-                //     )
-                //     .then(({ data }) => {
-                //         console.log(data);
-                //     })
-                //     .catch((err) => {
-                //         //登录失败
-                //         console.log(err);
-                //         alert("登录已过期,请重新登录");
-                //         //移除旧的token
-                //         localStorage.clear();
-                //         //将界面路由至登录页面
-                //         this.$router.replace("/login");
-                //     });
             } else if (
                 this.$route.path !== "/login" &&
                 this.$route.path !== "/register"
