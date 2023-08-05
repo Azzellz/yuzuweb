@@ -24,7 +24,7 @@ const UserModule = {
                     )
                     .then(({ data: { data } }) => {
                         //从上下文对象中触发commit函数提交mutation,更新state
-                        context.commit("UPDATE", data);
+                        context.commit("UPDATE_CURRENT_USER", data);
                         //解除渲染锁
                         resolve(data);
                     })
@@ -41,40 +41,9 @@ const UserModule = {
                 context.commit("UPDATE_RECENT_USERS", data);
             })
         },
-        //!已弃用
-        // async findUserPosts(context, postId) {
-        //     //TODO: 得做一个同步用户信息的操作,确保当前store中的用户信息是匹配当前postid的
-        //     console.log("findUserPosts:", postId);
-        //     for (
-        //         let i = 1;
-        //         context.state.user.favorites.length ||
-        //         context.state.user.published.length;
-        //         i++
-        //     ) {
-        //         console.log(i);
-        //         if (
-        //             context.state.user.favorites.find(
-        //                 (post) => post._id === postId
-        //             ) ||
-        //             context.state.user.published.find(
-        //                 (post) => post._id === postId
-        //             )
-        //         ) {
-        //             return; //如果找到了就跳出循环
-        //         } else {
-        //             await context.dispatch("getUser", {
-        //                 currentPage: i,
-        //                 keyword: "",
-        //                 pageSize: this.pageSize,
-        //             });
-        //         }
-        //     }
-        //     //没找到就初始化用户信息
-        //     await context.dispatch("getUser", {});
-        // },
     },
     mutations: {
-        UPDATE(state, data) {
+        UPDATE_CURRENT_USER(state, data) {
             console.log("updated user-info:", data);
             state.user = data.user;
             state.publishedTotal = data.publishedTotal;
@@ -84,7 +53,6 @@ const UserModule = {
             state.recentUsers = data;
         }
     },
-    getters: {},
     state: {
         user: {},//指向当前用户
         recentUsers: [],//最近注册的所有用户
