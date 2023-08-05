@@ -2,7 +2,7 @@
     <div class="container" v-if="isReady">
         <div class="recent-posts">
             <h1 style="text-align: center; margin: 20px">最新</h1>
-            <PostCard v-for="post in lastPosts" :key="post._id" :post="post" />
+            <PostCard v-for="post in lastestPosts" :key="post._id" :post="post" />
         </div>
         <div class="recent-users">
             <div class="hot-user-post">
@@ -50,7 +50,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("PostModule", ["lastPosts"]),
+        ...mapState("PostModule", ["lastestPosts"]),
         ...mapState("UserModule", [
             "user",
             "recentUsers",
@@ -117,6 +117,7 @@ export default {
 }
 .user-meta {
     padding: 25px;
+    line-height: 1.5;
     flex: 1;
     text-align: center;
     color: #999999;
