@@ -118,6 +118,7 @@ export default {
     ], //接收文章id和是否为文章作者的布尔值参数和是否处于编辑模式的布尔值参数
     data() {
         return {
+            currentPost:this.post,//引用当前文章
             comment: "",
             isFavorite: false,
         };
@@ -168,7 +169,7 @@ export default {
                         message: "评论成功",
                         offset: 80,
                     });
-                    //重置评论
+                    //重置评论输入框内容
                     this.comment = "";
                 })
                 .catch((err) => {
