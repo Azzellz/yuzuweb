@@ -36,27 +36,45 @@ export default {
         };
     },
     computed: {
-        ...mapState("PostModule", ["posts"]), //通过getter获取posts
+        ...mapState("PostModule", ["posts", "lastestPosts"]), //通过getter获取posts
         ...mapState("UserModule", ["user"]), //通过getter获取favorites
         postWithFlag() {
             //从当前用户中找或是从所有文章中找
-            return this.posts.find((post) => post._id === this.id)
-                ? {
-                      post: this.posts.find((post) => post._id === this.id),
-                      isFromUser: false,
-                  }
-                : {
-                      post: this.user.published.find(
-                          (post) => post._id === this.id
-                      )
-                          ? this.user.published.find(
-                                (post) => post._id === this.id
-                            )
-                          : this.user.favorites.find(
-                                (post) => post._id === this.id
-                            ),
-                      isFromUser: true,
-                  };
+            let postFromPosts = this.posts.find((post) => post._id === this.id);
+            if (postFromPosts) {
+                return {
+                    post: postFromPosts,
+                    isFromUser: false,
+                };
+            }
+            let postFromUserPublished = this.user.published.find(
+                (post) => post._id === this.id
+            );
+            if (postFromUserPublished) {
+                return {
+                    post: postFromUserPublished,
+                    isFromUser: true,
+                };
+            }
+            let postFromUserFavorites = this.user.favorites.find(
+                (post) => post._id === this.id
+            );
+            if (postFromUserFavorites) {
+                return {
+                    post: postFromUserFavorites,
+                    isFromUser: true,
+                };
+            }
+            let postFromLastestPosts = this.lastestPosts.find(
+                (post) => post._id === this.id
+            );
+            if (postFromLastestPosts) {
+                return {
+                    post: postFromLastestPosts,
+                    isFromUser: false,
+                };
+            }
+            return undefined;
         },
     },
     methods: {
@@ -65,6 +83,7 @@ export default {
     props: ["id", "currentPage", "pageSize"], //获取post的id
     created() {
         //判断当前用户是否为文章作者
+        console.log(this.postWithFlag);
         //如果是则开启编辑模式
         if (this.postWithFlag.post.user_id === this.user._id) {
             this.isAuthor = true;
@@ -75,7 +94,6 @@ export default {
         } else {
             // console.log("Hey!current custom is from post list page!");
         }
-
     },
 };
 </script>

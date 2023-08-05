@@ -65,7 +65,7 @@ const PostModule = {
             state.pageSize = data.pageSize;
         },
         UPDATE_LASTEST_POSTS(state, data) {
-            state.lastPosts = data;
+            state.lastestPosts = data;
             console.log("updated lastest-post-list:", data);
         },
         UPDATE_CURRENT_PAGE(state, currentPage) {
@@ -88,7 +88,7 @@ const PostModule = {
     },
     state: {
         posts: [],
-        lastPosts: [],
+        lastestPosts: [],
         total: 0, //记录数据库post总数
         currentPage: 0, //默认从0开始算就是第一页
         pageSize: 10, //每页显示的记录数
