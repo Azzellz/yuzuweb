@@ -34,37 +34,44 @@ const UserModule = {
                     });
             });
         },
-        //!已弃用
-        async findUserPosts(context, postId) {
-            //TODO: 得做一个同步用户信息的操作,确保当前store中的用户信息是匹配当前postid的
-            console.log("findUserPosts:", postId);
-            for (
-                let i = 1;
-                context.state.user.favorites.length ||
-                context.state.user.published.length;
-                i++
-            ) {
-                console.log(i);
-                if (
-                    context.state.user.favorites.find(
-                        (post) => post._id === postId
-                    ) ||
-                    context.state.user.published.find(
-                        (post) => post._id === postId
-                    )
-                ) {
-                    return; //如果找到了就跳出循环
-                } else {
-                    await context.dispatch("getUser", {
-                        currentPage: i,
-                        keyword: "",
-                        pageSize: this.pageSize,
-                    });
-                }
-            }
-            //没找到就初始化用户信息
-            await context.dispatch("getUser", {});
+        getRecentUsers(context) {
+            //获取最近所有注册的用户
+            axios.get(`/user/recent`).then(({ data: { data } }) => {
+                console.log(data)
+                context.commit("UPDATE_RECENT_USERS", data);
+            })
         },
+        //!已弃用
+        // async findUserPosts(context, postId) {
+        //     //TODO: 得做一个同步用户信息的操作,确保当前store中的用户信息是匹配当前postid的
+        //     console.log("findUserPosts:", postId);
+        //     for (
+        //         let i = 1;
+        //         context.state.user.favorites.length ||
+        //         context.state.user.published.length;
+        //         i++
+        //     ) {
+        //         console.log(i);
+        //         if (
+        //             context.state.user.favorites.find(
+        //                 (post) => post._id === postId
+        //             ) ||
+        //             context.state.user.published.find(
+        //                 (post) => post._id === postId
+        //             )
+        //         ) {
+        //             return; //如果找到了就跳出循环
+        //         } else {
+        //             await context.dispatch("getUser", {
+        //                 currentPage: i,
+        //                 keyword: "",
+        //                 pageSize: this.pageSize,
+        //             });
+        //         }
+        //     }
+        //     //没找到就初始化用户信息
+        //     await context.dispatch("getUser", {});
+        // },
     },
     mutations: {
         UPDATE(state, data) {
@@ -73,10 +80,14 @@ const UserModule = {
             state.publishedTotal = data.publishedTotal;
             state.favoritesTotal = data.favoritesTotal;
         },
+        UPDATE_RECENT_USERS(state, data) {
+            state.recentUsers = data;
+        }
     },
     getters: {},
     state: {
-        user: {},
+        user: {},//指向当前用户
+        recentUsers: [],//最近注册的所有用户
         publishedTotal: 0,
         favoritesTotal: 0,
     },

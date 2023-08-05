@@ -1,12 +1,38 @@
 <template>
     <div class="container" v-if="isReady">
         <div class="recent-posts">
-            <h1 style="text-align:center;margin:20px">最新</h1>
-            <PostCard v-for="post in posts" :key="post._id" :post="post" />
+            <h1 style="text-align: center; margin: 20px">最新</h1>
+            <PostCard v-for="post in lastPosts" :key="post._id" :post="post" />
         </div>
         <div class="recent-users">
-            <div class="hot-user-post"></div>
-            <div class="recent-visitor"></div>
+            <div class="hot-user-post">
+                <h1 style="text-align: center; margin: 20px">您</h1>
+                <div class="user-box">
+                    <el-avatar
+                        :size="120"
+                        :src="$avatarURL(user.avatar)"
+                        style="margin: 20px"
+                    ></el-avatar>
+                    <div class="user-meta">
+                        <h1 style="color:black">{{ user.user_name }}</h1>
+                        <p>发表了{{ publishedTotal }}篇帖子</p>
+                        <p>收藏了{{ favoritesTotal }}篇帖子</p>
+                    </div>
+                </div>
+            </div>
+            <div class="recent-visitor">
+                <h1 style="text-align: center; margin: 20px">最近访客</h1>
+                <div style="padding: 20px">
+                    <!-- 这里应该套上一层router-view,点击用户头像即可跳转到目标用户界面 -->
+                    <el-avatar
+                        v-for="user in recentUsers"
+                        :key="user._id"
+                        :size="50"
+                        :src="$avatarURL(user.avatar)"
+                        style="margin: 10px"
+                    ></el-avatar>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -21,21 +47,28 @@ export default {
     data() {
         return {
             isReady: false,
-            
         };
     },
     computed: {
-        ...mapState("PostModule", ["posts"]),
-        ...mapState("UserModule", ["user"]),
+        ...mapState("PostModule", ["lastPosts"]),
+        ...mapState("UserModule", [
+            "user",
+            "recentUsers",
+            "publishedTotal",
+            "favoritesTotal",
+        ]),
     },
     methods: {
-        ...mapActions("PostModule", ["getPosts"]),
-        ...mapActions("UserModule", ["getUser"]),
+        ...mapActions("PostModule", ["getLastestPosts"]),
+        ...mapActions("UserModule", ["getUser", "getRecentUsers"]),
     },
     async created() {
-        //初始化前十个帖子展现在首页
-        await this.getPosts();
-        await this.getUser();
+        //初始化前十个帖子展现在首页-->获取当前用户信息-->获取最近访客信息
+        await Promise.all([
+            this.getLastestPosts(),
+            this.getUser(),
+            this.getRecentUsers(),
+        ]);
         this.isReady = true;
     },
 };
@@ -76,5 +109,16 @@ export default {
     margin: 20px;
     border-radius: 10px;
     flex: 0.5;
+}
+
+.user-box {
+    display: flex;
+    padding: 20px;
+}
+.user-meta {
+    padding: 25px;
+    flex: 1;
+    text-align: center;
+    color: #999999;
 }
 </style>

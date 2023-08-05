@@ -34,16 +34,12 @@ const PostModule = {
                     });
             });
         },
-        getLastPosts(context) {
-            //获取最新的十篇文章
+        getLastestPosts(context) {
+            //!获取最新的十篇文章,后续可拓展获取指定数量的文章
             return new Promise((resolve, reject) => {
-                axios.get(`/posts/last`).then(({ data: { data } }) => {
-                    //从上下文对象中触发commit函数提交mutation,更新state
-                    context.commit("UPDATE", {
-                        ...data,
-                        currentPage: 0,
-                        pageSize: 10,
-                    });
+                axios.get(`/posts/lastest`).then(({ data: { data } }) => {
+                    //更新LastestPosts
+                    context.commit("UPDATE_LASTEST_POSTS", data);
                     //解除渲染锁
                     resolve(data);
                 }).catch((err) => {
@@ -68,6 +64,10 @@ const PostModule = {
             state.currentPage = data.currentPage;
             state.pageSize = data.pageSize;
         },
+        UPDATE_LASTEST_POSTS(state, data) {
+            state.lastPosts = data;
+            console.log("updated lastest-post-list:", data);
+        },
         UPDATE_CURRENT_PAGE(state, currentPage) {
             state.currentPage = currentPage;
             console.log("updated currentPage:", state.currentPage);
@@ -88,6 +88,7 @@ const PostModule = {
     },
     state: {
         posts: [],
+        lastPosts: [],
         total: 0, //记录数据库post总数
         currentPage: 0, //默认从0开始算就是第一页
         pageSize: 10, //每页显示的记录数

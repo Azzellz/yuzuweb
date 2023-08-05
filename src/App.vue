@@ -107,6 +107,7 @@ export default {
     },
     computed: {
         isHideHeader() {
+            //通过路由元信息判断是否隐藏头部
             return !this.$route.meta.hideHeader;
         },
     },
