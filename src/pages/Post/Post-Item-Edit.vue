@@ -7,7 +7,7 @@
             style="width: 20%"
         ></el-input>
         <h6 class="info-box">
-            <el-avatar :size="40" :src="$avatarURL(post.avatar)"></el-avatar>
+            <el-avatar :size="40" :src="$avatarURL(post.user.avatar)"></el-avatar>
             <div class="info-text">{{ postInfo }}</div>
             <div class="info-tags">
                 <el-tag
@@ -140,7 +140,7 @@ export default {
     computed: {
         //文章数据
         postInfo() {
-            return `${this.post.user_name} 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
+            return `${this.post.user.user_name} 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
         },
     },
     methods: {

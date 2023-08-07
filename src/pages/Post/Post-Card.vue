@@ -14,9 +14,9 @@
                 <template v-if="!post.isUnknown">
                     <el-avatar
                         :size="50"
-                        :src="$avatarURL(post.avatar)"
+                        :src="$avatarURL(post.user.avatar)"
                     ></el-avatar>
-                    <div style="flex: 1">{{ post.user_name }}</div>
+                    <div style="flex: 1">{{ post.user.user_name }}</div>
                 </template>
                 <template v-else>
                     <el-avatar icon="el-icon-user-solid" :size="50"></el-avatar>

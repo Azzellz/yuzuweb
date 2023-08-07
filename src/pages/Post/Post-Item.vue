@@ -85,7 +85,7 @@ export default {
     created() {
         //判断当前用户是否为文章作者
         //如果是则开启编辑模式
-        if (this.postWithFlag.post.user_id === this.user._id) {
+        if (this.postWithFlag.post.user._id === this.user._id) {
             this.isAuthor = true;
         }
     },
