@@ -5,7 +5,7 @@
             <template v-if="!post.isUnknown">
                 <el-avatar
                     :size="40"
-                    :src="$avatarURL(post.avatar)"
+                    :src="$avatarURL(post.user.avatar)"
                 ></el-avatar>
                 <div class="info-text">{{ postInfo }}</div>
             </template>
@@ -126,7 +126,7 @@ export default {
     computed: {
         //文章信息
         postInfo() {
-            return `${this.post.user_name} 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
+            return `${this.post.user.user_name} 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
         },
         //匿名用户的文章信息
         unknownPostInfo() {

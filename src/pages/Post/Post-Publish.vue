@@ -62,9 +62,6 @@ export default {
     data() {
         return {
             post: {
-                user_id: localStorage.getItem("user_id"),
-                user_name: localStorage.getItem("user_name"),
-                avatar: localStorage.getItem("avatar"),
                 title: "",
                 content: "",
                 comments: [],
@@ -96,8 +93,11 @@ export default {
             //发送post请求
             this.$axios
                 .post("/post", {
-                    ...this.post,
-                    ...this.meta,
+                    post: {
+                        ...this.post,
+                        ...this.meta,
+                    },//封装post对象
+                    user_id: localStorage.getItem("user_id"), //发送当前用户id
                 })
                 .then(({ data }) => {
                     console.log(data);

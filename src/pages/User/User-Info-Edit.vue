@@ -28,7 +28,7 @@ export default {
     props: ["isEditing", "user"],
     data() {
         return {
-            currentUser: this.user,
+            currentUser: {...this.user},//克隆对象,防止被修改
         };
     },
     methods: {

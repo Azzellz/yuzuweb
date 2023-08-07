@@ -22,7 +22,7 @@
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 :current-page.sync="currentPage"
-                :page-sizes="[5,10, 20, 50, 100]"
+                :page-sizes="[5, 10, 20, 50, 100]"
                 :page-size="pageSize"
                 :total="total"
                 layout="total,sizes, prev, pager, next"
@@ -43,8 +43,12 @@ export default {
         return {
             keyword: "",
             pageSize: 10,
-            currentPage:1
+            currentPage: 1,
         };
+    },
+    computed: {
+        //使用模块化的Vuex时,用map时要在第一个参数指定模块(要开启模块的命名空间才能生效)
+        ...mapState("PostModule", ["posts", "total"]),
     },
     methods: {
         //使用模块化的Vuex时,用map时要在第一个参数指定模块(要开启模块的命名空间才能生效)
@@ -63,7 +67,7 @@ export default {
         //页码被用户改变时
         handleCurrentChange(currentPage) {
             console.log(`当前页: ${currentPage}`);
-            console.log(this.keyword)
+            console.log(this.keyword);
             this.getPosts({
                 currentPage: this.currentPage,
                 pageSize: this.pageSize,
@@ -71,29 +75,26 @@ export default {
             });
         },
         //懒搜索
-        goSearch(){
-            console.log("Go to search..",this.keyword)
+        goSearch() {
+            console.log("Go to search..", this.keyword);
             this.getPosts({
                 currentPage: this.currentPage,
                 pageSize: this.pageSize,
                 keyword: this.keyword,
             });
-        }
+        },
     },
-    computed: {
-        //使用模块化的Vuex时,用map时要在第一个参数指定模块(要开启模块的命名空间才能生效)
-        ...mapState("PostModule", ["posts", "total"]),
-    },
+
     watch: {
         //实时搜索
-        keyword(newVal){
+        keyword(newVal) {
             //监听关键词变化
             this.getPosts({
                 currentPage: this.currentPage,
                 pageSize: this.pageSize,
                 keyword: newVal,
             });
-        }
+        },
     },
 };
 </script>
