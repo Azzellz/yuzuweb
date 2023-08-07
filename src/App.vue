@@ -75,7 +75,9 @@ export default {
                         !localStorage.getItem("user_name") &&
                         !localStorage.getItem("user_account")
                 ) &&
-                !localStorage.getItem("avatar")
+                !localStorage.getItem("avatar") &&
+                this.$route.path !== "/login" &&
+                this.$route.path !== "/register"
             ) {
                 localStorage.clear();
                 if (this.$route.path !== "/login") {

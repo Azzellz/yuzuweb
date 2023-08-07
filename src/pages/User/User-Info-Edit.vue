@@ -41,12 +41,21 @@ export default {
         checkInput() {
             if (this.currentUser.user_name.trim() === "") {
                 this.$message({
-                    type: "danger",
+                    type: "error",
                     message: "用户名不能为空!",
                     offset: 80,
                 });
                 return false;
-            } else {
+            } else if(this.currentUser.user_name.trim()===this.user.user_name) {
+                //用户信息未被修改
+                this.$message({
+                    type: "success",
+                    message: "保存成功!",
+                    offset: 80,
+                });
+                this.$emit("update:isEditing", false);
+                return false;
+            }else{
                 return true;
             }
         },
@@ -68,10 +77,10 @@ export default {
                     message: "保存成功!",
                     offset: 80,
                 });
-            } catch (err) {
+            } catch ({response: {data: {err}}}) {
                 this.$message({
-                    type: "danger",
-                    message: "保存失败!",
+                    type: "error",
+                    message: err,
                     offset: 80,
                 });
             }

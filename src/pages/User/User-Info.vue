@@ -5,7 +5,11 @@
             :isEditing.sync="isEditing"
             :user="user"
         ></UserInfoNormal>
-        <UserInfoEdit v-else :isEditing.sync="isEditing" :user="user"></UserInfoEdit>
+        <UserInfoEdit
+            v-else
+            :isEditing.sync="isEditing"
+            :user="user"
+        ></UserInfoEdit>
     </span>
 </template>
 
