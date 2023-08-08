@@ -59,10 +59,8 @@ export default {
             this.watchRoute(to);
         },
     },
-    beforeRouteEnter(to, from, next) {
-        next((vm) => {
-            vm.watchRoute(to);
-        });
+    created() {
+        this.watchRoute(this.$route);
     },
 };
 </script>

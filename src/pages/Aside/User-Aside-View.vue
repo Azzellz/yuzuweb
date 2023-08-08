@@ -16,9 +16,9 @@
                 <i class="el-icon-tickets"></i>
                 <span>资料</span>
             </el-menu-item>
-            <el-menu-item index="/user/friends">
+            <el-menu-item index="/user/follows">
                 <i class="el-icon-s-custom"></i>
-                <span>好友</span>
+                <span>关注</span>
             </el-menu-item>
             <el-menu-item index="/user/posts">
                 <i class="el-icon-chat-dot-square"></i>
@@ -53,8 +53,8 @@ export default {
                 case "/user/info":
                     this.activeIndex = "/user/info";
                     break;
-                case "/user/friends":
-                    this.activeIndex = "/user/friends";
+                case "/user/follows":
+                    this.activeIndex = "/user/follows";
                     break;
                 case "/user/posts":
                     this.activeIndex = "/user/posts";
@@ -73,10 +73,8 @@ export default {
             this.watchRoute(to);
         },
     },
-    beforeRouteEnter(to, from, next) {
-        next((vm) => {
-            vm.watchRoute(to);
-        });
+    created() {
+        this.watchRoute(this.$route);
     },
 };
 </script>
