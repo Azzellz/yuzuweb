@@ -8,7 +8,7 @@
                         path: '/user/other',
                         query: {
                             id: post.user._id,
-                            title: user.user_name,
+                            title: post.user.user_name,
                         },
                     }"
                 >

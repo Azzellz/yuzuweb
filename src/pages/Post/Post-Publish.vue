@@ -67,6 +67,7 @@ export default {
                 comments: [],
                 support: 0,
                 oppose: 0,
+                follow:0,
                 tags: [],
             },
             meta: {

@@ -12,11 +12,22 @@
             <div class="hot-user-post">
                 <h1 style="text-align: center; margin: 20px">您</h1>
                 <div class="user-box">
-                    <el-avatar
-                        :size="120"
-                        :src="$avatarURL(user.avatar)"
-                        style="margin: 20px"
-                    ></el-avatar>
+                    <router-link
+                        :to="{
+                            path: '/user/other',
+                            query: {
+                                id: user._id,
+                                title: user.user_name,
+                            },
+                        }"
+                    >
+                        <el-avatar
+                            :size="120"
+                            :src="$avatarURL(user.avatar)"
+                            style="margin: 20px"
+                        ></el-avatar>
+                    </router-link>
+
                     <div class="user-meta">
                         <h1 style="color: black">{{ user.user_name }}</h1>
                         <p>发表了{{ publishedTotal }}篇帖子</p>

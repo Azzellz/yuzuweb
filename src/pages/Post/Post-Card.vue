@@ -16,13 +16,15 @@
                         :size="50"
                         :src="$avatarURL(post.user.avatar)"
                     ></el-avatar>
-                    <div style="flex: 1">{{ post.user.user_name }}</div>
+                    <div style="flex: 1">
+                        {{ postInfo }}
+                    </div>
                 </template>
                 <template v-else>
                     <el-avatar icon="el-icon-user-solid" :size="50"></el-avatar>
-                    <div style="flex: 1">匿名用户</div>
+                    <div style="flex: 1">{{ postInfo }}</div>
                 </template>
-                <div style="font-size: 15px; color: #999">{{ postInfo }}</div>
+                <div style="font-size: 15px; color: #999">{{ postMeta }}</div>
             </div>
             <el-divider v-if="post.tags.length"></el-divider>
             <el-tag
@@ -50,10 +52,25 @@ export default {
     name: "PostCard",
     props: ["post", "currentPage", "pageSize"], //接收一个post对象参数
     computed: {
-        postInfo() {
+        postMeta() {
             // 打印出点赞数和点踩数
-            return `👍:${this.post.support} 👎:${this.post.oppose} 评论数:${this.post.comments.length}`;
+            return `👍:${this.post.support} 👎:${this.post.oppose} ⭐:${this.post.follow} 评论:${this.post.comments.length}`;
         },
+        postInfo() {
+            return this.post.isUnknown
+                ? `匿名用户 发表于 ${this.betterFormatTime}`
+                : `${this.post.user.user_name} 发表于 ${this.betterFormatTime}`;
+        },
+        betterFormatTime(){
+            //如果是当前年份则不显示年份
+            const currentYear = (new Date()).getFullYear() + ''
+            console.log(currentYear)
+            if (this.post.format_time.split('-')[0]===currentYear){
+                return this.post.format_time.split('-').slice(1).join('-')
+            }else{
+                return this.post.format_time
+            }
+        }
     },
     filters: {
         //使用过滤器对过长内容进行过滤
