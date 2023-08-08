@@ -15,6 +15,9 @@
             :post="postWithFlag.post"
             :user="user"
             :isEditing.sync="isEditing"
+            :from="postWithFlag.from"
+            :pageSize="pageSize"
+            :currentPage="currentPage"
         ></PostItemEdit>
     </span>
 </template>
@@ -83,6 +86,15 @@ export default {
     },
     props: ["id", "currentPage", "pageSize"], //获取post的id
     created() {
+        //先判断当前文章是否存在,不存在直接返回到list路由
+        if (!this.postWithFlag) {
+            this.$message({
+                type: "success",
+                message: "评论成功",
+                offset: 80,
+            });
+            return this.$router.replace("/post/list");
+        }
         //判断当前用户是否为文章作者
         //如果是则开启编辑模式
         if (this.postWithFlag.post.user._id === this.user._id) {

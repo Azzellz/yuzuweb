@@ -8,6 +8,10 @@
             router
             :default-active="activeIndex"
         >
+            <el-menu-item v-if="currentIndex" :index="activeIndex"
+                ><i class="el-icon-location"></i>
+                <span slot="title">当前</span>
+            </el-menu-item>
             <el-menu-item index="/user/info">
                 <i class="el-icon-tickets"></i>
                 <span>资料</span>
@@ -33,7 +37,46 @@ export default {
     data() {
         return {
             activeIndex: this.$route.path,
+            currentIndex: false, //刚开始不可见
         };
+    },
+    methods: {
+        //展示当前这个路由项
+        showCurrentIndex(to) {
+            this.activeIndex = to.fullPath;
+            this.currentIndex = true;
+        },
+        //路由检查
+        watchRoute(to) {
+            this.currentIndex = false;
+            switch (to.path) {
+                case "/user/info":
+                    this.activeIndex = "/user/info";
+                    break;
+                case "/user/friends":
+                    this.activeIndex = "/user/friends";
+                    break;
+                case "/user/posts":
+                    this.activeIndex = "/user/posts";
+                    break;
+                case "/user/favorites":
+                    this.activeIndex = "/user/favorites";
+                    break;
+                default:
+                    this.showCurrentIndex(to);
+                    break;
+            }
+        },
+    },
+    watch: {
+        $route(to) {
+            this.watchRoute(to);
+        },
+    },
+    beforeRouteEnter(to, from, next) {
+        next((vm) => {
+            vm.watchRoute(to);
+        });
     },
 };
 </script>
