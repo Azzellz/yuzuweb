@@ -1,11 +1,4 @@
 <template>
-    <!-- 旧导航栏 -->
-    <!-- <div class="nav-container">
-        <router-link to="/home" class="nav-item">首页</router-link>
-        <router-link to="/post" class="nav-item">帖子</router-link>
-        <router-link to="/user" class="nav-item">个人</router-link>
-    </div> -->
-    
     <!-- 新导航栏 -->
     <el-menu
         :default-active="activeIndex"
@@ -19,6 +12,9 @@
         <el-menu-item index="/home">首页</el-menu-item>
         <el-menu-item index="/post/list">帖子</el-menu-item>
         <el-menu-item index="/user/info">个人</el-menu-item>
+        <el-menu-item v-if="currentIndex" :index="activeIndex"
+            >{{currentIndexContent}}</el-menu-item
+        >
     </el-menu>
 </template>
 
@@ -26,21 +22,54 @@
 export default {
     data() {
         return {
-            activeIndex: "/home",
+            activeIndex: this.$route.path,
+            currentIndex: false, //刚开始不可见
         };
     },
-    created(){
-        let front = this.$route.path.split("/")[1];
-        switch (front) {
-            case "post":
-                this.activeIndex = "/post/list";
-                break;
-            case "user":
-                this.activeIndex = "/user/info";
-                break;
+    computed:{
+        currentIndexContent(){
+            if (this.$route.query.title) return this.$route.query.title;
+            else return "当前";
         }
-    }
+    },
+    methods: {
+        showCurrentIndex(to) {
+            this.activeIndex = to.fullPath;
+            this.currentIndex = true;
+        },
+        //路由检查
+        watchRoute(to) {
+            this.currentIndex = false;
+            const front = to.path.split("/")[1];
+            const end = to.path.split("/")[2];
 
+            switch (front) {
+                case "post":
+                    this.activeIndex = "/post/list";
+                    break;
+                case "user":
+                    if (end==="info" || end==="follows" || end==="posts" || end==="favorites"){
+                        this.activeIndex = "/user/info";
+                    }else{
+                        this.showCurrentIndex(to);
+                    }  
+                    break;
+                default:
+                    this.activeIndex = "/home";
+                    break;
+            }
+        },
+    },
+    watch: {
+        //监听路由变化
+        $route(to) {
+            this.watchRoute(to);
+            console.log(to)
+        },
+    },
+    created() {
+        this.watchRoute(this.$route);
+    },
 };
 </script>
 

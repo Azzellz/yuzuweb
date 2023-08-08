@@ -4,14 +4,14 @@ import { nanoid } from "nanoid";
 export default {
     install(Vue) {
         //配置axios的根路径
-        axios.defaults.baseURL = "http://localhost:4000";
+        axios.defaults.baseURL = "http://localhost:4000/";
         //关闭Vue的生产提示
         Vue.config.productionTip = false;
         Vue.prototype.$bus = new Vue(); //总线
         Vue.prototype.$axios = axios;
         Vue.prototype.$nanoid = nanoid;
         Vue.prototype.$avatarURL = (avatar) => {
-            return `http://127.0.0.1:4000/user_avatar/${avatar}`;
+            return `http://localhost:4000/user_avatar/${avatar}`;
         };
         //全局枚举变量
         Vue.prototype.$enum = {

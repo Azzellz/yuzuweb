@@ -6,7 +6,7 @@ import axios from "axios";
 const UserModule = {
     namespaced: true, //启动Vuex模块化
     actions: {
-        //从服务器获取用户信息,并更新state
+        //从服务器获取当前用户信息,并更新state
         getUser(context, val = {}) {
             //检查是否有参数传入,没有就使用默认值
             //!这里是用来分页的逻辑,一定要注意,如果不传入参数,那么就是初始查询,不跳过
@@ -43,6 +43,25 @@ const UserModule = {
                 context.commit("UPDATE_RECENT_USERS", data);
             });
         },
+        //根据id获取其他用户的信息
+        getOtherUser(context, id) {
+            return new Promise((resolve, reject) => {
+                axios
+                    .get(
+                        `/user?id=${id}&isOther=true`
+                    )
+                    .then(({ data: { data } }) => {
+                        //从上下文对象中触发commit函数提交mutation,更新state
+                        context.commit("UPDATE_OTHER_USER", data);
+                        //解除渲染锁
+                        resolve(data);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        reject(err);
+                    });
+            });
+        },
         //更新用户信息
         updateUser(context, newUser) {
             return new Promise((resolve, reject) => {
@@ -64,12 +83,16 @@ const UserModule = {
             state.publishedTotal = data.publishedTotal;
             state.favoritesTotal = data.favoritesTotal;
         },
+        UPDATE_OTHER_USER(state, data) {
+            state.otherUser = data;
+        },
         UPDATE_RECENT_USERS(state, data) {
             state.recentUsers = data;
         },
     },
     state: {
         user: {}, //指向当前用户
+        otherUser:{},//指向当前浏览的其他用户
         recentUsers: [], //最近注册的所有用户
         publishedTotal: 0,
         favoritesTotal: 0,

@@ -1,5 +1,5 @@
 <template>
-    <router-view class="fit-fixed-position" v-if="isReady"></router-view>
+    <router-view :class="autoFit" v-if="isReady"></router-view>
 </template>
 
 <script>
@@ -9,6 +9,16 @@ export default {
         return {
             isReady: false, //渲染锁
         };
+    },
+    computed: {
+        //自适应类
+        autoFit() {
+            if (this.$route.meta.isHideAside && this.$route.meta.isHideHeader)
+                return "";
+            else if (this.$route.meta.isHideAside) return "without-aside";
+            else if (this.$route.meta.isHideHeader) return "without-header";
+            else return "with-aside-header";
+        },
     },
     methods: {
         ...mapActions("PostModule", ["getPosts"]),
@@ -20,7 +30,7 @@ export default {
             currentPage: this.$route.query.currentPage,
             pageSize: this.$route.query.pageSize,
         };
-        console.log(option)
+        console.log(option);
         await Promise.all([this.getPosts(option), this.getUser(option)]);
         this.isReady = true; //解除渲染锁
     },
@@ -29,8 +39,14 @@ export default {
 
 <style scoped>
 /* 适应fixed定位 */
-.fit-fixed-position {
+.with-aside-header {
     margin-top: 60px;
+    margin-left: 100px;
+}
+.without-aside {
+    margin-top: 60px;
+}
+.without-header {
     margin-left: 100px;
 }
 </style>

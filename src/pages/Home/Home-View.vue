@@ -2,19 +2,34 @@
     <div class="container" v-if="isReady">
         <div class="recent-posts">
             <h1 style="text-align: center">最新</h1>
-            <PostCard v-for="post in lastestPosts" :key="post._id" :post="post" />
+            <PostCard
+                v-for="post in lastestPosts"
+                :key="post._id"
+                :post="post"
+            />
         </div>
         <div class="recent-users">
             <div class="hot-user-post">
                 <h1 style="text-align: center; margin: 20px">您</h1>
                 <div class="user-box">
-                    <el-avatar
-                        :size="120"
-                        :src="$avatarURL(user.avatar)"
-                        style="margin: 20px"
-                    ></el-avatar>
+                    <router-link
+                        :to="{
+                            path: '/user/other',
+                            query: {
+                                id: user._id,
+                                title: user.user_name,
+                            },
+                        }"
+                    >
+                        <el-avatar
+                            :size="120"
+                            :src="$avatarURL(user.avatar)"
+                            style="margin: 20px"
+                        ></el-avatar>
+                    </router-link>
+
                     <div class="user-meta">
-                        <h1 style="color:black">{{ user.user_name }}</h1>
+                        <h1 style="color: black">{{ user.user_name }}</h1>
                         <p>发表了{{ publishedTotal }}篇帖子</p>
                         <p>收藏了{{ favoritesTotal }}篇帖子</p>
                     </div>
@@ -24,13 +39,22 @@
                 <h1 style="text-align: center; margin: 20px">最近访客</h1>
                 <div style="padding: 20px">
                     <!-- 这里应该套上一层router-view,点击用户头像即可跳转到目标用户界面 -->
-                    <el-avatar
+                    <router-link
                         v-for="user in recentUsers"
                         :key="user._id"
-                        :size="50"
-                        :src="$avatarURL(user.avatar)"
-                        style="margin: 10px"
-                    ></el-avatar>
+                        :to="{
+                            path: '/user/other',
+                            query: {
+                                id: user._id,
+                                title: user.user_name,
+                            },
+                        }"
+                        ><el-avatar
+                            :size="50"
+                            :src="$avatarURL(user.avatar)"
+                            style="margin: 10px"
+                        ></el-avatar>
+                    </router-link>
                 </div>
             </div>
         </div>

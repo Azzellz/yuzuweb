@@ -5,7 +5,7 @@
             <!-- 头像 -->
             <el-upload
                 class="avatar-uploader"
-                action="http://127.0.0.1:4000/register"
+                action="http://localhost:4000/register"
                 ref="upload"
                 :data="{
                     user_name,

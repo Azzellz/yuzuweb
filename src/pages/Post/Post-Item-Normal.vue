@@ -3,10 +3,21 @@
         <h1 class="post-title">{{ post.title }}</h1>
         <h6 class="info-box">
             <template v-if="!post.isUnknown">
-                <el-avatar
-                    :size="40"
-                    :src="$avatarURL(post.user.avatar)"
-                ></el-avatar>
+                <router-link
+                    :to="{
+                        path: '/user/other',
+                        query: {
+                            id: post.user._id,
+                            title: post.user.user_name,
+                        },
+                    }"
+                >
+                    <el-avatar
+                        :size="40"
+                        :src="$avatarURL(post.user.avatar)"
+                    ></el-avatar>
+                </router-link>
+
                 <div class="info-text">{{ postInfo }}</div>
             </template>
             <template v-else>

@@ -10,10 +10,11 @@ import Login from "../pages/Login/Login-View.vue";
 import Register from "../pages/Register/Register-View.vue";
 import UserAside from "../pages/Aside/User-Aside-View.vue";
 import PostAside from "../pages/Aside/Post-Aside-View.vue";
-import UserFriends from "../pages/User/User-Friends.vue";
+import UserFollows from "../pages/User/User-Follows.vue";
 import UserInfo from "../pages/User/User-Info.vue";
 import UserPosts from "../pages/User/User-Posts.vue";
 import UserFavorites from "../pages/User/User-Favorites.vue";
+import UserOtherInfo from "../pages/User/User-Other-Info.vue";
 
 Vue.use(VueRouter);
 const router = new VueRouter({
@@ -46,7 +47,7 @@ const router = new VueRouter({
                 default: Post,
                 aside: PostAside,
             },
-            redirect:'/post/list',
+            redirect: "/post/list",
             children: [
                 {
                     path: "list",
@@ -63,9 +64,6 @@ const router = new VueRouter({
                     props($route) {
                         return {
                             id: $route.query.id,
-                            currentPage: $route.query.currentPage,
-                            pageSize: $route.query.pageSize,
-                            
                         };
                     },
                 },
@@ -73,7 +71,7 @@ const router = new VueRouter({
         },
         {
             path: "/user",
-            redirect:'/user/info',
+            redirect: "/user/info",
             //使用componens实现多个组件渲染
             components: {
                 //配置default属性，渲染默认组件,会渲染到没有name属性的router-view中
@@ -82,8 +80,8 @@ const router = new VueRouter({
             },
             children: [
                 {
-                    path: "friends",
-                    component: UserFriends,
+                    path: "follows",
+                    component: UserFollows,
                 },
                 {
                     path: "info",
@@ -96,7 +94,21 @@ const router = new VueRouter({
                 {
                     path: "favorites",
                     component: UserFavorites,
-                }
+                },
+                {
+                    path: "other",
+                    component: UserOtherInfo,
+                    meta: {
+                        isHideAside: true, //展示其他用户信息时隐藏侧边栏,注意,meta以这里的为主,其他地方的会被覆盖
+                    },
+                    props($route) {
+                        return {
+                            id: $route.query.id,
+                            currentPage: $route.query.currentPage,
+                            pageSize: $route.query.pageSize,
+                        };
+                    },
+                },
             ],
         },
         {
@@ -107,6 +119,6 @@ const router = new VueRouter({
 });
 //todo: 应该把登录校验放到这里做
 // router.beforeEach((to, from, next) => {
-    
+
 // })
 export default router;

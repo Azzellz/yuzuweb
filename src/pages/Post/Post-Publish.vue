@@ -67,6 +67,7 @@ export default {
                 comments: [],
                 support: 0,
                 oppose: 0,
+                follow:0,
                 tags: [],
             },
             meta: {
@@ -96,7 +97,7 @@ export default {
                     post: {
                         ...this.post,
                         ...this.meta,
-                    },//封装post对象
+                    }, //封装post对象
                     user_id: localStorage.getItem("user_id"), //发送当前用户id
                 })
                 .then(({ data }) => {

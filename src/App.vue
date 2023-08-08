@@ -7,7 +7,7 @@
 
             <div class="main-container">
                 <!-- 边栏,选择性展示 -->
-                <transition appear name="fadeIn">
+                <transition v-if="isHideAside" appear name="fadeIn">
                     <router-view name="aside"></router-view>
                 </transition>
                 <!-- 路由展示区:用flex1可以铺满剩余空间 -->
@@ -91,6 +91,10 @@ export default {
         isHideHeader() {
             //通过路由元信息判断是否隐藏头部
             return !this.$route.meta.hideHeader;
+        },
+        isHideAside() {
+            //通过路由元信息判断是否隐藏边栏
+            return !this.$route.meta.isHideAside;
         },
     },
     created() {

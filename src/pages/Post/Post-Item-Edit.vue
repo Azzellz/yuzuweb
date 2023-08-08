@@ -7,7 +7,10 @@
             style="width: 20%"
         ></el-input>
         <h6 class="info-box">
-            <el-avatar :size="40" :src="$avatarURL(post.user.avatar)"></el-avatar>
+            <el-avatar
+                :size="40"
+                :src="$avatarURL(post.user.avatar)"
+            ></el-avatar>
             <div class="info-text">{{ postInfo }}</div>
             <div class="info-tags">
                 <el-tag
@@ -82,6 +85,21 @@
                         >关闭评论区</el-button
                     >
                 </el-popover>
+                <el-popover
+                    placement="top"
+                    width="200"
+                    title="删除"
+                    trigger="hover"
+                    content="这将删除本篇文章"
+                >
+                    <el-button
+                        type="danger"
+                        @click="deleteCurrentPost"
+                        icon="el-icon-close"
+                        slot="reference"
+                        >删除本篇文章</el-button
+                    >
+                </el-popover>
             </div>
             <el-divider></el-divider>
             <div class="comment-display-box">
@@ -130,7 +148,7 @@
 <script>
 import { mapActions } from "vuex";
 export default {
-    props: ["id", "post", "user", "isEditing"],
+    props: ["id", "post", "user", "isEditing", "from"],
     data() {
         return {
             //引用文章数据
@@ -142,20 +160,80 @@ export default {
         postInfo() {
             return `${this.post.user.user_name} 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
         },
+        getOption() {
+            return {
+                pageSize: this.pageSize,
+                currentPage: this.currentPage,
+                keyword: "",
+            };
+        },
     },
     methods: {
-        ...mapActions("PostModule", ["getPosts", "updatePost"]),
+        ...mapActions("PostModule", ["getPosts", "updatePost", "deletePost"]),
         ...mapActions("UserModule", ["getUser"]),
+        //比较来源后更新不同数据源
+        async confirmUpdate() {
+            //枚举判断来源
+            switch (this.from) {
+                case this.$enum.POST_FROM.USER_POSTS:
+                    await this.getUser(this.getOption);
+                    break;
+                case this.$enum.POST_FROM.LIST_POSTS:
+                    await this.getPosts(this.getOption);
+                    break;
+                case this.$enum.POST_FROM.LASTEST_POSTS:
+                    await this.getLastestPosts(this.getOption);
+                    break;
+                default:
+                    //全部更新一遍
+                    await Promise.all([
+                        this.getUser(this.getOption),
+                        this.getPosts(this.getOption),
+                        this.getLastestPosts(this.getOption),
+                    ]);
+                    break;
+            }
+        },
         //保存修改
-        saveEdited() {
+        async saveEdited() {
             //保存并且结束编辑模式
-            this.$emit("update:isEditing", false);
-            this.updatePost(this.currentPost);
-            this.$message({
-                type: "success",
-                message: "保存成功",
-                offset: 80,
-            });
+            try {
+                await this.updatePost(this.currentPost);
+                this.$emit("update:isEditing", false);
+                this.$message({
+                    type: "success",
+                    message: "保存成功",
+                    offset: 80,
+                });
+            } catch (err) {
+                console.log(err);
+                this.$message({
+                    type: "error",
+                    message: "保存失败,请重试",
+                    offset: 80,
+                });
+            }
+        },
+        //删除当前文章
+        async deleteCurrentPost() {
+            try {
+                await this.deletePost(this.currentPost._id);
+                this.confirmUpdate();
+                //回退的上一页
+                history.back();
+                this.$message({
+                    type: "success",
+                    message: "删除成功",
+                    offset: 80,
+                });
+            } catch (err) {
+                console.log(err);
+                this.$message({
+                    type: "error",
+                    message: "删除失败,请重试",
+                    offset: 80,
+                });
+            }
         },
         //删除所有评论
         deleteAllComments() {
