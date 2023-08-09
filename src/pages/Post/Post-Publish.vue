@@ -100,12 +100,17 @@ export default {
                     }, //封装post对象
                     user_id: localStorage.getItem("user_id"), //发送当前用户id
                 })
-                .then(({ data }) => {
-                    console.log(data);
-                    this.getPosts(); //更新文章列表
+                .then(async ({ data:{data} }) => {
+                    await this.getPosts(); //更新文章列表
+                    this.$router.replace({
+                        path:"/post/item",
+                        query:{
+                            id:data._id
+                        }
+                    }); //跳转到文章详情页
                     this.$message({
                         showClose: true,
-                        message: data.msg,
+                        message: "发布成功",
                         type: "success",
                         offset: 80,
                     });

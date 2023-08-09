@@ -148,7 +148,7 @@
 <script>
 import { mapActions } from "vuex";
 export default {
-    props: ["id", "post", "user", "isEditing", "from"],
+    props: ["id", "post", "user", "isEditing"],
     data() {
         return {
             //引用文章数据
@@ -160,40 +160,9 @@ export default {
         postInfo() {
             return `${this.post.user.user_name} 于 ${this.post.format_time} 发布 | 👍:${this.post.support} 👎:${this.post.oppose} | 评论数:${this.post.comments.length}`;
         },
-        getOption() {
-            return {
-                pageSize: this.pageSize,
-                currentPage: this.currentPage,
-                keyword: "",
-            };
-        },
     },
     methods: {
-        ...mapActions("PostModule", ["getPosts", "updatePost", "deletePost"]),
-        ...mapActions("UserModule", ["getUser"]),
-        //比较来源后更新不同数据源
-        async confirmUpdate() {
-            //枚举判断来源
-            switch (this.from) {
-                case this.$enum.POST_FROM.USER_POSTS:
-                    await this.getUser(this.getOption);
-                    break;
-                case this.$enum.POST_FROM.LIST_POSTS:
-                    await this.getPosts(this.getOption);
-                    break;
-                case this.$enum.POST_FROM.LASTEST_POSTS:
-                    await this.getLastestPosts(this.getOption);
-                    break;
-                default:
-                    //全部更新一遍
-                    await Promise.all([
-                        this.getUser(this.getOption),
-                        this.getPosts(this.getOption),
-                        this.getLastestPosts(this.getOption),
-                    ]);
-                    break;
-            }
-        },
+        ...mapActions("PostModule", ["updatePost", "deletePost"]),
         //保存修改
         async saveEdited() {
             //保存并且结束编辑模式
@@ -218,7 +187,8 @@ export default {
         async deleteCurrentPost() {
             try {
                 await this.deletePost(this.currentPost._id);
-                this.confirmUpdate();
+                //调用父组件的更新状态方法
+                this.$emit("updateState");
                 //回退的上一页
                 history.back();
                 this.$message({

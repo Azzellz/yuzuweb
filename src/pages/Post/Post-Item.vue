@@ -4,20 +4,16 @@
             v-if="!isEditing"
             :post="postWithFlag.post"
             :user="user"
-            :pageSize="pageSize"
-            :currentPage="currentPage"
             :isAuthor="isAuthor"
-            :from="postWithFlag.from"
             :isEditing.sync="isEditing"
+            @updateState="confirmUpdate"
         ></PostItemNormal>
         <PostItemEdit
             v-else
             :post="postWithFlag.post"
             :user="user"
             :isEditing.sync="isEditing"
-            :from="postWithFlag.from"
-            :pageSize="pageSize"
-            :currentPage="currentPage"
+            @updateState="confirmUpdate"
         ></PostItemEdit>
     </span>
 </template>
@@ -31,6 +27,7 @@ export default {
         PostItemNormal,
         PostItemEdit,
     },
+    props: ["id", "currentPage", "pageSize"], //获取post的id,当前页数,每页数量
     data() {
         return {
             isAuthor: false, //判断是否为文章作者,如果是作者那么进入编辑页面
@@ -40,6 +37,14 @@ export default {
     computed: {
         ...mapState("PostModule", ["posts", "lastestPosts"]), //通过getter获取posts
         ...mapState("UserModule", ["user"]), //通过getter获取favorites
+        //获取文章的选项
+        getOption() {
+            return {
+                pageSize: this.pageSize,
+                currentPage: this.currentPage,
+                keyword: "",
+            };
+        },
         //从当前用户中找或是从所有文章中找
         postWithFlag() {
             const postFromPosts = this.posts.find(
@@ -82,15 +87,38 @@ export default {
         },
     },
     methods: {
-        ...mapActions("UserModule", ["getUser"]), //通过action获取posts
+        ...mapActions("PostModule", ["getPosts", "getLastestPosts"]),
+        ...mapActions("UserModule", ["getUser"]),
+        async confirmUpdate() {
+            //枚举判断来源
+            switch (this.postWithFlag.from) {
+                case this.$enum.POST_FROM.USER_POSTS:
+                    await this.getUser(this.getOption);
+                    break;
+                case this.$enum.POST_FROM.LIST_POSTS:
+                    await this.getPosts(this.getOption);
+                    break;
+                case this.$enum.POST_FROM.LASTEST_POSTS:
+                    await this.getLastestPosts(this.getOption);
+                    break;
+                default:
+                    //全部更新一遍
+                    await Promise.all([
+                        this.getUser(this.getOption),
+                        this.getPosts(this.getOption),
+                        this.getLastestPosts(this.getOption),
+                    ]);
+                    break;
+            }
+        },
     },
-    props: ["id", "currentPage", "pageSize"], //获取post的id
     created() {
+
         //先判断当前文章是否存在,不存在直接返回到list路由
         if (!this.postWithFlag) {
             this.$message({
-                type: "success",
-                message: "评论成功",
+                type: "error",
+                message: "当前文章不存在",
                 offset: 80,
             });
             return this.$router.replace("/post/list");
@@ -100,6 +128,17 @@ export default {
         if (this.postWithFlag.post.user._id === this.user._id) {
             this.isAuthor = true;
         }
+        //绑定全局事件
+        this.$bus.$on("updateState", this.confirmUpdate);
+        this.$bus.$on("updateIsEditing", (isEditing) => {
+            console.log(isEditing)
+            this.isEditing = isEditing;
+        });
+    },
+    beforeDestroy() {
+        //解绑全局事件
+        this.$bus.$off("updateState");
+        this.$bus.$off("updateIsEditing");
     },
 };
 </script>

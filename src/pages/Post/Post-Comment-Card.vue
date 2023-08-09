@@ -26,14 +26,14 @@
                 <div>
                     <el-button
                         type="success"
-                        @click="$parent.supportComment(comment)"
+                        @click="supportComment(comment)"
                         plain
                         size="mini"
                         >👍:{{ comment.support }}</el-button
                     >
                     <el-button
                         type="danger"
-                        @click="$parent.opposeComment(comment)"
+                        @click="opposeComment(comment)"
                         plain
                         size="mini"
                         >👎:{{ comment.oppose }}</el-button
@@ -47,8 +47,67 @@
 <script>
 export default {
     name: "Post-Comment-Card",
-    props: ["comment","index"],
-
+    props: ["comment", "index"],
+    methods: {
+        //给评论点赞
+        supportComment(comment) {
+            const comment_id = comment._id;
+            const post_id = comment.post._id;
+            //给评论点赞
+            this.$axios
+                .put("/post/comment/support", {
+                    comment_id,
+                    post_id,
+                })
+                .then(({ data: { data } }) => {
+                    console.log(data);
+                    this.$message({
+                        type: "success",
+                        message: "点赞成功",
+                        offset: 80,
+                    });
+                    //调用父组件的更新状态方法
+                    this.$bus.$emit("updateState");
+                })
+                .catch((err) => {
+                    console.log(err);
+                    this.$message({
+                        type: "error",
+                        message: "点赞失败",
+                        offset: 80,
+                    });
+                });
+        },
+        //给评论点踩
+        opposeComment(comment) {
+            const comment_id = comment._id;
+            const post_id = comment.post._id;
+            //给评论点赞
+            this.$axios
+                .put("/post/comment/oppose", {
+                    comment_id,
+                    post_id,
+                })
+                .then(({ data: { data } }) => {
+                    console.log(data);
+                    this.$message({
+                        type: "success",
+                        message: "点踩成功",
+                        offset: 80,
+                    });
+                    //调用父组件的更新状态方法
+                    this.$bus.$emit("updateState");
+                })
+                .catch((err) => {
+                    console.log(err);
+                    this.$message({
+                        type: "error",
+                        message: "点踩失败",
+                        offset: 80,
+                    });
+                });
+        },
+    },
 };
 </script>
 

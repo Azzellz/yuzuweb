@@ -64,7 +64,6 @@ export default {
         betterFormatTime(){
             //如果是当前年份则不显示年份
             const currentYear = (new Date()).getFullYear() + ''
-            console.log(currentYear)
             if (this.post.format_time.split('-')[0]===currentYear){
                 return this.post.format_time.split('-').slice(1).join('-')
             }else{
