@@ -56,9 +56,9 @@ const PostModule = {
             console.log("going to update:", newPost);
             return axios.put(`/post`, newPost);
         },
-        deletePost(context, post_id){
+        deletePost(context, post_id) {
             return axios.delete(`/post?post_id=${post_id}`);
-        }
+        },
     },
     mutations: {
         UPDATE_LIST_POSTS(state, data) {

@@ -56,12 +56,17 @@
                     style="margin-right: 30px"
                     @click="publishComment"
                 ></el-button>
-                <el-button type="success" @click="supportPost">👍</el-button>
-                <el-button type="danger" @click="opposePost">👎</el-button>
+                <el-button type="success" @click="supportPost" plain
+                    >👍</el-button
+                >
+                <el-button type="danger" @click="opposePost" plain
+                    >👎</el-button
+                >
                 <el-button
                     v-if="!isFavorite"
                     type="warning"
                     icon="el-icon-star-off"
+                    plain
                     @click="favoritePost"
                 ></el-button>
                 <el-button
@@ -74,32 +79,66 @@
                     type="primary"
                     v-if="isAuthor"
                     @click="goingToEditMode"
+                    plain
                     >编辑</el-button
                 >
             </div>
             <el-divider></el-divider>
             <div class="comment-display-box">
-                <el-card
+                <!-- <el-card
                     v-for="(comment, index) in post.comments"
-                    :key="comment.comment_id"
+                    :key="comment._id"
                     shadow="hover"
                     style="margin: 20px"
                 >
                     <div class="comment-line">
                         <div class="comment-user-info">
-                            <el-avatar
-                                :size="50"
-                                :src="$avatarURL(comment.avatar)"
-                            ></el-avatar>
-                            <div>{{ comment.user_name }}</div>
+                            <router-link
+                                :to="{
+                                    path: '/user/other',
+                                    query: {
+                                        id: comment.user._id,
+                                        title: comment.user.user_name,
+                                    },
+                                }"
+                            >
+                                <el-avatar
+                                    :size="50"
+                                    :src="$avatarURL(comment.user.avatar)"
+                                ></el-avatar>
+                            </router-link>
+
+                            <div>{{ comment.user.user_name }}</div>
                         </div>
                         <div class="comment-content">{{ comment.content }}</div>
                         <div class="comment-meta">
                             <div>{{ comment.format_time }}</div>
                             <div>{{ index + 1 }} 楼</div>
+                            <div>
+                                <el-button
+                                    type="success"
+                                    @click="supportComment(comment)"
+                                    plain
+                                    size="mini"
+                                    >👍:{{ comment.support }}</el-button
+                                >
+                                <el-button
+                                    type="danger"
+                                    @click="opposeComment(comment)"
+                                    plain
+                                    size="mini"
+                                    >👎:{{ comment.oppose }}</el-button
+                                >
+                            </div>
                         </div>
                     </div>
-                </el-card>
+                </el-card> -->
+                <Post-Comment-Card
+                    v-for="(comment, index) in post.comments"
+                    :key="comment._id"
+                    :comment="comment"
+                    :index="index"
+                ></Post-Comment-Card>
             </div>
         </el-card>
         <div v-else class="close-tip">
@@ -117,7 +156,11 @@
 
 <script>
 import { mapActions } from "vuex";
+import PostCommentCard from "./Post-Comment-Card.vue";
 export default {
+    components: {
+        PostCommentCard,
+    },
     props: [
         "post",
         "user",
@@ -186,14 +229,16 @@ export default {
         publishComment() {
             //应该发布后刷新一次界面让Vuex能获取到最新的值
             if (!this.comment) return this.$message.error("评论不能为空");
-            //要求内容：post_id,comment_id(由前端自己生成),user_id,user_name,avatar,content
+            //要求内容：post(id),user_id,user_name,avatar,content
             const comment = {
-                post_id: this.post._id,
-                comment_id: this.$nanoid(),
-                user_id: localStorage.getItem("user_id"),
-                user_name: localStorage.getItem("user_name"),
-                avatar: localStorage.getItem("avatar"),
+                post: this.post._id,
+                // user_id: localStorage.getItem("user_id"),
+                // user_name: localStorage.getItem("user_name"),
+                // avatar: localStorage.getItem("avatar"),
+                user: this.user._id,
                 content: this.comment,
+                support: 0,
+                oppose: 0,
             };
             //给服务器发送评论请求
             //TODO: 这里可以做个评论区校验,防止用户恶意评论
@@ -218,6 +263,64 @@ export default {
                     this.$message({
                         type: "error",
                         message: "评论失败",
+                        offset: 80,
+                    });
+                });
+        },
+        //给评论点赞
+        supportComment(comment) {
+            const comment_id = comment._id;
+            const post_id = this.post._id;
+            //给评论点赞
+            this.$axios
+                .put("/post/comment/support", {
+                    comment_id,
+                    post_id,
+                })
+                .then(({ data: { data } }) => {
+                    console.log(data);
+                    this.$message({
+                        type: "success",
+                        message: "点赞成功",
+                        offset: 80,
+                    });
+                    //根据不同数据源更新不同的数据
+                    this.confirmUpdate();
+                })
+                .catch((err) => {
+                    console.log(err);
+                    this.$message({
+                        type: "error",
+                        message: "点赞失败",
+                        offset: 80,
+                    });
+                });
+        },
+        //给评论点踩
+        opposeComment(comment) {
+            const comment_id = comment._id;
+            const post_id = this.post._id;
+            //给评论点赞
+            this.$axios
+                .put("/post/comment/oppose", {
+                    comment_id,
+                    post_id,
+                })
+                .then(({ data: { data } }) => {
+                    console.log(data);
+                    this.$message({
+                        type: "success",
+                        message: "点踩成功",
+                        offset: 80,
+                    });
+                    //根据不同数据源更新不同的数据
+                    this.confirmUpdate();
+                })
+                .catch((err) => {
+                    console.log(err);
+                    this.$message({
+                        type: "error",
+                        message: "点踩失败",
                         offset: 80,
                     });
                 });

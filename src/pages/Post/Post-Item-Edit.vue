@@ -105,7 +105,7 @@
             <div class="comment-display-box">
                 <el-card
                     v-for="(comment, index) in currentPost.comments"
-                    :key="comment.comment_id"
+                    :key="comment._id"
                     shadow="hover"
                     style="margin: 20px"
                 >
@@ -113,9 +113,9 @@
                         <div class="comment-user-info">
                             <el-avatar
                                 :size="50"
-                                :src="$avatarURL(comment.avatar)"
+                                :src="$avatarURL(comment.user.avatar)"
                             ></el-avatar>
-                            <div>{{ comment.user_name }}</div>
+                            <div>{{ comment.user.user_name }}</div>
                         </div>
                         <div class="comment-content">{{ comment.content }}</div>
                         <div class="comment-meta">
@@ -264,6 +264,7 @@ export default {
                 offset: 80,
             });
         },
+        //关闭评论区
         closeComment() {
             this.currentPost.isCommentable = false;
         },
