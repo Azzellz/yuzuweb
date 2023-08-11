@@ -1,21 +1,9 @@
 <template>
-    <span>
-        <PostItemNormal
-            v-if="!isEditing"
-            :post="postWithFlag.post"
-            :user="user"
-            :isAuthor="isAuthor"
-            :isEditing.sync="isEditing"
-            @updateState="confirmUpdate"
-        ></PostItemNormal>
-        <PostItemEdit
-            v-else
-            :post="postWithFlag.post"
-            :user="user"
-            :isEditing.sync="isEditing"
-            @updateState="confirmUpdate"
-        ></PostItemEdit>
-    </span>
+    <Post-Item-Normal
+        v-if="!isEditing"
+        :post="postWithFlag.post"
+    ></Post-Item-Normal>
+    <Post-Item-Edit v-else :post="postWithFlag.post"></Post-Item-Edit>
 </template>
 
 <script>
@@ -30,8 +18,7 @@ export default {
     props: ["id", "currentPage", "pageSize"], //获取post的id,当前页数,每页数量
     data() {
         return {
-            isAuthor: false, //判断是否为文章作者,如果是作者那么进入编辑页面
-            isEditing: false, //判断是否在编辑状态
+            isEditing: false, //判断是否在编辑状态,状态量
         };
     },
     computed: {
@@ -103,6 +90,7 @@ export default {
                     break;
                 default:
                     //全部更新一遍
+                    console.log("can't find post from any source");
                     await Promise.all([
                         this.getUser(this.getOption),
                         this.getPosts(this.getOption),
@@ -113,7 +101,6 @@ export default {
         },
     },
     created() {
-
         //先判断当前文章是否存在,不存在直接返回到list路由
         if (!this.postWithFlag) {
             this.$message({
@@ -123,15 +110,10 @@ export default {
             });
             return this.$router.replace("/post/list");
         }
-        //判断当前用户是否为文章作者
-        //如果是则开启编辑模式
-        if (this.postWithFlag.post.user._id === this.user._id) {
-            this.isAuthor = true;
-        }
         //绑定全局事件
         this.$bus.$on("updateState", this.confirmUpdate);
         this.$bus.$on("updateIsEditing", (isEditing) => {
-            console.log(isEditing)
+            console.log(isEditing);
             this.isEditing = isEditing;
         });
     },

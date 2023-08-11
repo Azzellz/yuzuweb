@@ -39,11 +39,7 @@
         <el-divider>内容</el-divider>
         <el-card class="content-box">{{ post.content }}</el-card>
         <el-divider>评论</el-divider>
-        <Post-Comment
-            :post="post"
-            :user="user"
-            :isAuthor="isAuthor"
-        ></Post-Comment>
+        <Post-Comment :post="post"></Post-Comment>
     </div>
 </template>
 
@@ -54,7 +50,7 @@ export default {
     components: {
         PostComment,
     },
-    props: ["post", "user", "isAuthor", "isEditing"], //接收文章id和是否为文章作者的布尔值参数和是否处于编辑模式的布尔值参数
+    props: ["post"], //接收文章id和是否为文章作者的布尔值参数和是否处于编辑模式的布尔值参数
     data() {
         return {};
     },
@@ -82,53 +78,6 @@ export default {
     width: 80%;
     min-height: 600px;
     overflow: hidden;
-}
-.close-tip {
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-}
-.comment-container {
-    width: 80%;
-    margin-bottom: 20px;
-}
-.comment-input {
-    width: 80%;
-}
-.comment-edit-box {
-    display: flex;
-    margin: 20px;
-}
-.comment-edit-box * {
-    margin: 0 10px;
-}
-.comment-line {
-    display: flex;
-}
-.comment-user-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-}
-.comment-content {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    justify-content: flex-start;
-    line-height: 1.5;
-    margin: 0 20px;
-    border-right: 1px solid #d5d5d5;
-    border-left: 1px solid #d5d5d5;
-    padding: 20px;
-}
-.comment-meta {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
 }
 .info-box {
     color: grey;

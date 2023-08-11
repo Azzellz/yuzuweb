@@ -1,5 +1,6 @@
 <template>
-    <el-card class="comment-container" v-if="post.isCommentable">
+    <!-- 是否可见评论区 -->
+    <el-card v-if="post.isCommentable" class="comment-container">
         <div class="comment-edit-box">
             <el-input
                 type="textarea"
@@ -49,6 +50,7 @@
             ></Post-Comment-Card>
         </div>
     </el-card>
+    <!-- 评论区若不可见则显示 -->
     <div v-else class="close-tip">
         <h1>作者已关闭评论区</h1>
         <el-button
@@ -69,13 +71,18 @@ export default {
     components: {
         PostCommentCard,
     },
-    props: ["post","user", "isAuthor"],
+    props: ["post"],
     data() {
         return {
             // currentPost: this.post, //引用当前文章
             comment: "",
             isFavorite: false,
         };
+    },
+    computed:{
+        isAuthor(){
+            return this.post.user._id===localStorage.getItem("user_id")
+        }
     },
     methods: {
         ...mapActions("PostModule", ["updatePost"]),
@@ -85,7 +92,7 @@ export default {
             //要求内容：post(id),user(id),user_name,avatar,content
             const comment = {
                 post: this.post._id,
-                user: this.user._id,
+                user: localStorage.getItem("user_id"),
                 content: this.comment,
                 support: 0,
                 oppose: 0,
@@ -96,8 +103,6 @@ export default {
                 .post("/comment", comment)
                 .then((res) => {
                     console.log(res);
-                    //根据不同数据源更新不同的数据
-                    //this.confirmUpdate();
                     //调用父组件的更新状态方法
                     this.$bus.$emit("updateState");
                     //TODO: 这里也可以更新下用户信息,但是不知道会不会有性能问题
@@ -273,6 +278,7 @@ export default {
 .comment-input {
     width: 80%;
 }
+
 .comment-edit-box {
     display: flex;
     margin: 20px;
